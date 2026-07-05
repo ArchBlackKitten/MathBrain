@@ -256,20 +256,116 @@ function calendarMath(level: ProblemLevel) {
 
 function moneyMath(level: ProblemLevel) {
   if (level === 1) {
-    const price = rand(1, 9) + rand(0, 9) * 0.1, pays = Math.ceil(price);
-    return { question: `Artículo: $${price.toFixed(2)}. Pagas $${pays.toFixed(2)}. ¿Cambio?`, answer: round2(pays-price), hint: `Cambio = ${pays}−${price.toFixed(2)}` };
+    const type = pick(['change','tip10','bills'] as const);
+    if (type === 'change') {
+      const cents = pick([25,50,75,99,30,45,60,80,15,35]);
+      const price = rand(1,19) + cents/100;
+      const pays  = Math.ceil(price / 5) * 5;
+      return { question: `Compraste $${price.toFixed(2)}, pagas $${pays}. ¿Cambio?`, answer: round2(pays-price), hint: `${pays}−${price.toFixed(2)}=${round2(pays-price)}` };
+    }
+    if (type === 'tip10') {
+      const bill = pick([20,30,40,50,60,80,100,120,150,200]);
+      return { question: `Cuenta $${bill}. Propina 10%. ¿Cuánto dejas?`, answer: bill/10, hint: `10% = mover el punto decimal: ${bill}÷10=$${bill/10}` };
+    }
+    // Bills: how much total
+    const tens = rand(1,5), fives = rand(0,3), ones = rand(0,4);
+    const total = tens*10 + fives*5 + ones;
+    return { question: `Tienes ${tens} billete(s) de $10, ${fives} de $5 y ${ones} de $1. ¿Total?`, answer: total, hint: `${tens}×10 + ${fives}×5 + ${ones} = ${total}` };
   }
+
   if (level === 2) {
-    const bill = rand(10, 80)*5, tip = pick([10,15,20]);
-    return { question: `Cuenta: $${bill}. Propina ${tip}%. ¿Propina?`, answer: round2(bill*tip/100), hint: `${tip}% de ${bill} = $${round2(bill*tip/100)}` };
+    const type = pick(['tip15','tip20','discount','split2'] as const);
+    if (type === 'tip15') {
+      const bill = pick([20,40,60,80,100,120,160,200]);
+      const tip  = round2(bill * 0.15);
+      return { question: `Cuenta $${bill}. Propina 15%. ¿Propina?`, answer: tip, hint: `10%=$${bill/10} + 5%=$${bill/20} → $${tip}` };
+    }
+    if (type === 'tip20') {
+      const bill = pick([25,30,45,50,60,75,90,100,150]);
+      const tip  = round2(bill * 0.20);
+      return { question: `Cuenta $${bill}. Propina 20%. ¿Propina?`, answer: tip, hint: `20% = ${bill}÷5 = $${tip}` };
+    }
+    if (type === 'discount') {
+      const price = pick([20,30,40,50,60,80,100,120,150,200]);
+      const disc  = pick([10,20,25,50]);
+      const final = round2(price*(1-disc/100));
+      return { question: `Precio $${price}, descuento ${disc}%. ¿Precio final?`, answer: final, hint: `$${price} × ${1-disc/100} = $${final}` };
+    }
+    // Split between 2
+    const bill = pick([30,40,50,60,80,100,120]); const ppl = 2;
+    const each = round2(bill/ppl);
+    return { question: `Cuenta $${bill} entre ${ppl} personas iguales. ¿Cada quien?`, answer: each, hint: `$${bill}÷${ppl}=$${each}` };
   }
+
   if (level === 3) {
-    const price = rand(20, 200)*5, disc = pick([10,15,20,25,30,50]);
-    return { question: `Precio: $${price}. Descuento ${disc}%. ¿Precio final?`, answer: round2(price*(1-disc/100)), hint: `${price}×${1-disc/100} = $${round2(price*(1-disc/100))}` };
+    const type = pick(['tip18','split_tip','double_disc','deal','markup'] as const);
+    if (type === 'tip18') {
+      const bill = pick([50,60,80,100,120,150,200]);
+      const tip  = round2(bill * 0.18);
+      return { question: `Cuenta $${bill}. Propina 18%. ¿Propina?`, answer: tip, hint: `18% = 10%+5%+3% → $${bill/10}+$${bill/20}+$${round2(bill*0.03)}=$${tip}` };
+    }
+    if (type === 'split_tip') {
+      const ppl  = pick([3,4,5]);
+      const base = ppl * pick([10,15,20,25]);
+      const tip  = pick([15,20]);
+      const total = round2(base*(1+tip/100));
+      const each  = round2(total/ppl);
+      return { question: `Cuenta $${base}, ${ppl} personas, propina ${tip}%. ¿Cada quien?`, answer: each, hint: `Total=$${total}÷${ppl}=$${each}` };
+    }
+    if (type === 'double_disc') {
+      const price = pick([100,200,150,80,120]);
+      const d1 = pick([20,30,10]), d2 = pick([10,5,15]);
+      const after1 = round2(price*(1-d1/100));
+      const final  = round2(after1*(1-d2/100));
+      return { question: `$${price}, primero ${d1}% off, luego ${d2}% off adicional. ¿Final?`, answer: final, hint: `$${price}→$${after1}→$${final}` };
+    }
+    if (type === 'deal') {
+      // Buy X get 1 free — effective price per unit
+      const unit = pick([5,8,10,12,15,20]);
+      const qty  = pick([3,4,5]);
+      const pay  = (qty-1)*unit;
+      return { question: `Compra ${qty-1} y lleva ${qty} (1 gratis). Precio unitario $${unit}. ¿Total a pagar?`, answer: pay, hint: `Pagas ${qty-1} unidades: ${qty-1}×$${unit}=$${pay}` };
+    }
+    // Markup
+    const cost = pick([20,30,40,50,60,80,100]);
+    const markup = pick([25,50,100,20,40]);
+    const sell = round2(cost*(1+markup/100));
+    return { question: `Costo $${cost}, margen de ganancia ${markup}%. ¿Precio de venta?`, answer: sell, hint: `$${cost}×${1+markup/100}=$${sell}` };
   }
-  const ppl = rand(2,6), bill = rand(5,20)*ppl*5, tip = pick([10,15,20]);
-  const total = round2(bill*(1+tip/100)), each = round2(total/ppl);
-  return { question: `Cuenta $${bill}, ${ppl} personas, propina ${tip}%. ¿Cada uno?`, answer: each, hint: `Total=$${total}÷${ppl}=$${each}` };
+
+  // Level 4: comparar precios por unidad, presupuesto, puntos de lealtad, vuelto exacto, propina rara
+  const type = pick(['unitprice','budget','loyalty','exact_change','tip19'] as const);
+  if (type === 'unitprice') {
+    const [q1,p1,q2,p2] = pick([
+      [6,3.00,8,3.60],[3,2.70,5,4.00],[12,7.20,9,5.85],[4,1.80,7,2.94],
+    ]);
+    const u1 = round2(p1/q1), u2 = round2(p2/q2);
+    const cheaper = u1 < u2 ? q1 : q2;
+    return { question: `Paquete A: ${q1} und por $${p1}. Paquete B: ${q2} und por $${p2}. ¿Cuál es más barato por unidad? (escribe el tamaño)`, answer: cheaper, hint: `A=$${u1}/und, B=$${u2}/und → elige $${Math.min(u1,u2)}/und` };
+  }
+  if (type === 'budget') {
+    const budget = pick([50,80,100,120,150]);
+    const spent1 = pick([15,20,25,30,35]);
+    const spent2 = pick([10,15,18,22,28]);
+    const left = budget - spent1 - spent2;
+    return { question: `Presupuesto $${budget}. Gastaste $${spent1} y luego $${spent2}. ¿Te queda?`, answer: left, hint: `${budget}−${spent1}−${spent2}=${left}` };
+  }
+  if (type === 'loyalty') {
+    const purchase = pick([50,80,100,120,150,200]);
+    const pct = pick([3,5,2,4]);
+    const pts = Math.round(purchase * pct / 100 * 100);
+    return { question: `Compra $${purchase}. Ganas ${pct}% en puntos (1 punto = $0.01). ¿Cuántos puntos?`, answer: pts, hint: `${purchase}×${pct}%=$${purchase*pct/100} → ${pts} puntos` };
+  }
+  if (type === 'exact_change') {
+    const price = rand(20,60) + pick([0.37,0.63,0.49,0.78,0.15,0.82]);
+    const pays  = Math.ceil(price);
+    const change = round2(pays - price);
+    return { question: `Cuentas exactas: artículo $${price.toFixed(2)}, pagas $${pays}. ¿Cambio exacto en centavos?`, answer: Math.round(change*100), hint: `${pays}−$${price.toFixed(2)}=$${change} = ${Math.round(change*100)}¢` };
+  }
+  // tip 19% (tricky mental)
+  const bill = pick([50,80,100,120,150,200]);
+  const tip  = round2(bill * 0.19);
+  return { question: `Cuenta $${bill}. Propina 19%. ¿Propina?`, answer: tip, hint: `20%=$${bill*0.2} menos 1%=$${bill*0.01} → $${tip}` };
 }
 
 // ── Medidas & Conversiones ────────────────────────────────────────────────────
