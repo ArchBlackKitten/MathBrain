@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { CategoryId, UserProfile, AppSettings } from '../types';
 import { CATEGORY_COLOR, CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_ORDER, CATEGORY_SECTIONS } from '../engine/meta';
-import { recentAccuracy } from '../engine/adaptive';
+import { recentAccuracy, getCategoryPriorities } from '../engine/adaptive';
 import { exportProfile, importProfileFromFile, loadTrainingSelection, saveTrainingSelection } from '../engine/storage';
 import { useT } from '../i18n';
 
@@ -24,7 +24,8 @@ export default function Menu({
   const lang = settings.language;
   const importRef = useRef<HTMLInputElement>(null);
 
-  const [selectMode, setSelectMode] = useState(false);
+  // 'free' = app decides, 'focused' = user picks categories
+  const [practiceTab, setPracticeTab] = useState<'free' | 'focused'>('free');
   const [selected, setSelected] = useState<CategoryId[]>(() => {
     const saved = loadTrainingSelection(profile.id);
     if (saved) {
@@ -36,26 +37,17 @@ export default function Menu({
 
   const toggle = (id: CategoryId) => {
     setSelected(prev => {
-      let next: CategoryId[];
-      if (prev.length === CATEGORY_ORDER.length && prev.includes(id)) {
-        next = [id];
-      } else {
-        next = prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id];
-        if (next.length === 0) next = [id];
-      }
-      saveTrainingSelection(profile.id, next);
-      return next;
+      const next = prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id];
+      const safe = next.length === 0 ? [id] : next;
+      saveTrainingSelection(profile.id, safe);
+      return safe;
     });
   };
 
   const toggleSection = (ids: CategoryId[]) => {
     const allIn = ids.every(id => selected.includes(id));
     setSelected(prev => {
-      const next = allIn
-        ? prev.filter(id => !ids.includes(id)).length === 0
-          ? ids // don't go to zero: keep section if it would empty everything
-          : prev.filter(id => !ids.includes(id))
-        : [...new Set([...prev, ...ids])];
+      const next = allIn ? prev.filter(id => !ids.includes(id)) : [...new Set([...prev, ...ids])];
       const safe = next.length === 0 ? ids : next;
       saveTrainingSelection(profile.id, safe);
       return safe;
@@ -75,14 +67,19 @@ export default function Menu({
     e.target.value = '';
   };
 
+  // Smart recommendations
+  const priorities = getCategoryPriorities(profile);
+  const recommended = new Set(priorities.slice(0, 6).map(p => p.id));
+  const urgentCount = priorities.filter(p => p.score > 0.5).length;
+
   const xpInLevel = profile.xp % 100;
   const now = Date.now();
 
   return (
-    <div className="min-h-screen bg-[#07070f] px-4 py-6 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#07070f] max-w-2xl mx-auto">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between px-4 pt-6 pb-4">
         <button onClick={onProfiles} className="flex items-center gap-2">
           <span className="text-2xl">{profile.avatar}</span>
           <div className="text-left">
@@ -100,54 +97,124 @@ export default function Menu({
       </div>
 
       {/* XP bar */}
-      <div className="mb-6">
+      <div className="px-4 mb-5">
         <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
           <div className="h-full bg-violet-500 rounded-full transition-all duration-700" style={{ width: `${xpInLevel}%` }} />
         </div>
         <p className="text-xs text-slate-600 text-right mt-1">{t.xpLevel(Math.floor(profile.xp / 100) + 1)}</p>
       </div>
 
-      {/* Mode toggle */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">{t.categories}</h2>
-        <button
-          onClick={() => setSelectMode(v => !v)}
-          className={`text-xs px-3 py-1.5 rounded-xl border transition ${
-            selectMode ? 'bg-violet-600 border-violet-500 text-white' : 'border-white/10 text-slate-400 hover:text-white'
-          }`}
-        >
-          {selectMode ? t.selectCats : t.practice}
-        </button>
+      {/* Practice mode tabs */}
+      <div className="px-4 mb-5">
+        <div className="flex gap-2 bg-white/5 p-1 rounded-2xl">
+          <button
+            onClick={() => setPracticeTab('free')}
+            className={`flex-1 flex flex-col items-center py-3 px-2 rounded-xl transition-all ${
+              practiceTab === 'free'
+                ? 'bg-violet-600 shadow-lg shadow-violet-900/50'
+                : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-lg mb-0.5">🎲</span>
+            <span className={`text-xs font-bold ${practiceTab === 'free' ? 'text-white' : 'text-slate-400'}`}>
+              {lang === 'es' ? 'Práctica Libre' : 'Free Practice'}
+            </span>
+            <span className={`text-[10px] mt-0.5 ${practiceTab === 'free' ? 'text-violet-200' : 'text-slate-600'}`}>
+              {lang === 'es' ? 'La app decide' : 'App decides'}
+            </span>
+          </button>
+          <button
+            onClick={() => setPracticeTab('focused')}
+            className={`flex-1 flex flex-col items-center py-3 px-2 rounded-xl transition-all ${
+              practiceTab === 'focused'
+                ? 'bg-fuchsia-600 shadow-lg shadow-fuchsia-900/50'
+                : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-lg mb-0.5">🎯</span>
+            <span className={`text-xs font-bold ${practiceTab === 'focused' ? 'text-white' : 'text-slate-400'}`}>
+              {lang === 'es' ? 'A Consciencia' : 'Focused'}
+            </span>
+            <span className={`text-[10px] mt-0.5 ${practiceTab === 'focused' ? 'text-fuchsia-200' : 'text-slate-600'}`}>
+              {lang === 'es' ? 'Tú eliges' : 'You choose'}
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* Sections */}
-      <div className="space-y-6 mb-6">
+      {/* === FREE PRACTICE === */}
+      {practiceTab === 'free' && (
+        <div className="px-4 mb-6">
+          {/* Smart recommendations panel */}
+          {urgentCount > 0 && (
+            <div className="bg-violet-500/10 border border-violet-500/25 rounded-2xl p-4 mb-4">
+              <p className="text-xs font-semibold text-violet-400 mb-2">
+                {lang === 'es' ? '📌 La app recomienda trabajar en:' : '📌 App recommends working on:'}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {priorities.slice(0, 5).map(p => (
+                  <span key={p.id} className="text-xs bg-violet-500/20 text-violet-300 rounded-full px-2 py-0.5 flex items-center gap-1">
+                    {CATEGORY_ICON[p.id]} {CATEGORY_LABEL[p.id]}
+                    {p.reason === 'neglect'    && <span className="text-amber-400">⏰</span>}
+                    {p.reason === 'struggling' && <span className="text-rose-400">💪</span>}
+                    {p.reason === 'new'        && <span className="text-sky-400">✨</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => onPlayMulti(CATEGORY_ORDER)}
+            className="w-full bg-violet-600 hover:bg-violet-500 active:scale-95 text-white font-bold text-lg py-5 rounded-2xl transition-all shadow-lg shadow-violet-900/40 mb-3"
+          >
+            {lang === 'es' ? '¡Practicar ahora!' : 'Practice now!'}
+          </button>
+          <p className="text-center text-xs text-slate-600">
+            {lang === 'es'
+              ? 'El algoritmo adaptativo elige categorías y niveles según tu progreso real.'
+              : 'The adaptive algorithm picks categories and levels based on your actual progress.'}
+          </p>
+        </div>
+      )}
+
+      {/* === FOCUSED PRACTICE === */}
+      {practiceTab === 'focused' && (
+        <div className="px-4 mb-6">
+          <p className="text-xs text-slate-500 mb-4 text-center">
+            {lang === 'es'
+              ? 'Selecciona qué quieres practicar hoy. El algoritmo sigue adaptando dentro de tu selección.'
+              : 'Choose what to practice today. The algorithm still adapts within your selection.'}
+          </p>
+        </div>
+      )}
+
+      {/* Category sections — shown in both modes (clickable for single in free, selectable in focused) */}
+      <div className="px-4 space-y-5 mb-6">
         {CATEGORY_SECTIONS.map(section => {
           const sectionLabel = lang === 'es' ? section.label : section.labelEn;
-          const allSectionSelected = section.categories.every(id => selected.includes(id));
+          const allSectionSelected = practiceTab === 'focused' && section.categories.every(id => selected.includes(id));
 
           return (
             <div key={section.id}>
-              {/* Section header */}
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                   {sectionLabel}
                 </h3>
-                {selectMode && (
+                {practiceTab === 'focused' && (
                   <button
                     onClick={() => toggleSection(section.categories)}
                     className={`text-xs px-2 py-0.5 rounded-full border transition ${
                       allSectionSelected
-                        ? 'border-violet-500/50 text-violet-400 bg-violet-500/10'
+                        ? 'border-fuchsia-500/50 text-fuchsia-400 bg-fuchsia-500/10'
                         : 'border-white/10 text-slate-600 hover:text-slate-300'
                     }`}
                   >
-                    {allSectionSelected ? '✓ todos' : 'seleccionar'}
+                    {allSectionSelected ? '✓ todos' : 'todos'}
                   </button>
                 )}
               </div>
 
-              {/* Category cards in 2-column grid */}
               <div className="grid grid-cols-2 gap-2">
                 {section.categories.map(id => {
                   const s   = profile.categories[id];
@@ -156,29 +223,38 @@ export default function Menu({
                   const acc = s.attempts > 0 ? recentAccuracy(s) : null;
                   const isSelected   = selected.includes(id);
                   const isNeglected  = s.lastPracticed > 0 && s.level > 1 && (now - s.lastPracticed) / 86_400_000 >= 4;
+                  const isRecommended = recommended.has(id);
                   const levelLabels  = lang === 'es' ? ['','Básico','Interm.','Avanzado','Experto'] : ['','Basic','Inter.','Advanced','Expert'];
+
+                  const dimmed = practiceTab === 'focused' && !isSelected;
 
                   return (
                     <button
                       key={id}
-                      onClick={() => selectMode ? toggle(id) : onPlaySingle(id)}
+                      onClick={() => practiceTab === 'focused' ? toggle(id) : onPlaySingle(id)}
                       className={`${c.bg} border ${
-                        selectMode && !isSelected ? 'opacity-35 border-white/8'
+                        dimmed ? 'opacity-30 border-white/8'
                           : isNeglected ? 'border-amber-500/50'
                           : c.border
                       } rounded-2xl p-3 text-left transition-all active:scale-95 relative`}
                     >
-                      {selectMode && (
+                      {/* Checkbox in focused mode */}
+                      {practiceTab === 'focused' && (
                         <div className={`absolute top-2 right-2 w-4 h-4 rounded border flex items-center justify-center ${
-                          isSelected ? `${c.bar} border-transparent` : 'border-slate-600 bg-transparent'
+                          isSelected ? `${c.bar} border-transparent` : 'border-slate-600'
                         }`}>
                           {isSelected && <span className="text-white text-[9px] font-bold leading-none">✓</span>}
                         </div>
                       )}
 
+                      {/* Recommended badge in free mode */}
+                      {practiceTab === 'free' && isRecommended && (
+                        <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-violet-400 rounded-full" />
+                      )}
+
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <span className={`font-bold text-base ${c.text}`}>{CATEGORY_ICON[id]}</span>
-                        <span className="text-white text-xs font-medium truncate flex-1">{CATEGORY_LABEL[id]}</span>
+                        <span className="text-white text-xs font-medium truncate flex-1 pr-4">{CATEGORY_LABEL[id]}</span>
                         {isNeglected && <span className="text-amber-400 text-xs shrink-0">⚠️</span>}
                       </div>
 
@@ -203,39 +279,37 @@ export default function Menu({
         })}
       </div>
 
-      {/* Practice button (shown in select mode) */}
-      {selectMode && (
-        <div className="space-y-2 mb-5 sticky bottom-4">
+      {/* Focused practice start button — sticky at bottom */}
+      {practiceTab === 'focused' && (
+        <div className="sticky bottom-0 bg-[#07070f]/95 backdrop-blur-sm px-4 pb-6 pt-3 border-t border-white/5">
           <button
-            onClick={() => { onPlayMulti(selected); setSelectMode(false); }}
+            onClick={() => onPlayMulti(selected)}
             disabled={selected.length === 0}
-            className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-30 active:scale-95 text-white font-bold text-lg py-4 rounded-2xl transition-all shadow-lg shadow-violet-900/50"
+            className="w-full bg-fuchsia-600 hover:bg-fuchsia-500 disabled:opacity-30 active:scale-95 text-white font-bold text-lg py-4 rounded-2xl transition-all shadow-lg shadow-fuchsia-900/40"
           >
-            {t.playWith(selected.length)}
+            {lang === 'es'
+              ? `Practicar ${selected.length === CATEGORY_ORDER.length ? 'todo' : `${selected.length} categoría${selected.length !== 1 ? 's' : ''}`}`
+              : `Practice ${selected.length === CATEGORY_ORDER.length ? 'all' : `${selected.length} categor${selected.length !== 1 ? 'ies' : 'y'}`}`}
           </button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <button
               onClick={() => { setSelected(CATEGORY_ORDER); saveTrainingSelection(profile.id, CATEGORY_ORDER); }}
               className="flex-1 text-xs text-slate-500 hover:text-white border border-white/8 rounded-xl py-2 transition"
             >
-              {t.selectAll}
+              {lang === 'es' ? 'Todas' : 'All'}
             </button>
             <button
-              onClick={() => {
-                const first = [CATEGORY_ORDER[0]];
-                setSelected(first);
-                saveTrainingSelection(profile.id, first);
-              }}
+              onClick={() => { setSelected([]); }}
               className="flex-1 text-xs text-slate-500 hover:text-white border border-white/8 rounded-xl py-2 transition"
             >
-              {t.deselectAll}
+              {lang === 'es' ? 'Ninguna' : 'None'}
             </button>
           </div>
         </div>
       )}
 
       {/* Export / Import */}
-      <div className="flex gap-2 pb-6">
+      <div className="flex gap-2 px-4 pb-8">
         <button onClick={() => exportProfile(profile)} className="flex-1 bg-white/5 hover:bg-white/10 text-slate-400 text-xs py-2.5 rounded-xl transition border border-white/8">
           {t.exportProfile}
         </button>

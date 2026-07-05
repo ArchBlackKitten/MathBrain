@@ -88,6 +88,50 @@ export function applyNeglectPenalties(profile: UserProfile): UserProfile {
   return changed ? { ...profile, categories: cats } : profile;
 }
 
+// ── Smart recommendations ─────────────────────────────────────────────────────
+// Scores each category by how urgently it needs practice.
+// Returns a sorted list with priority scores (0–1).
+
+export interface CategoryPriority {
+  id: CategoryId;
+  score: number;         // 0 = no need, 1 = urgent
+  reason: 'neglect' | 'struggling' | 'new' | 'sweet_spot';
+}
+
+export function getCategoryPriorities(profile: UserProfile): CategoryPriority[] {
+  const now = Date.now();
+  const DAY_MS = 86_400_000;
+
+  return (Object.entries(profile.categories) as [CategoryId, CategoryStats][])
+    .map(([id, s]) => {
+      const acc       = recentAccuracy(s);
+      const daysSince = s.lastPracticed === 0 ? 0 : (now - s.lastPracticed) / DAY_MS;
+      const isNew     = s.attempts === 0;
+
+      // Score components
+      const neglectScore    = Math.min(daysSince / 7, 1) * 0.35;
+      const struggleScore   = Math.max(0, (0.70 - acc)) / 0.70 * 0.40;
+      const newScore        = isNew ? 0.20 : 0;
+      const sweetSpotScore  = acc >= 0.65 && acc <= 0.85 ? 0.05 : 0; // in sweet spot: mild priority
+
+      const score = Math.min(neglectScore + struggleScore + newScore + sweetSpotScore, 1);
+
+      const reason: CategoryPriority['reason'] =
+        isNew ? 'new' :
+        daysSince >= 5 ? 'neglect' :
+        acc < 0.55 ? 'struggling' :
+        'sweet_spot';
+
+      return { id, score, reason };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+// Returns the top N categories most in need of practice
+export function getRecommendedCategories(profile: UserProfile, n = 5): CategoryId[] {
+  return getCategoryPriorities(profile).slice(0, n).map(p => p.id);
+}
+
 // ── Category picker ───────────────────────────────────────────────────────────
 
 export function pickCategory(profile: UserProfile, filter?: CategoryId[]): CategoryId {

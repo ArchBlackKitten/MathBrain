@@ -225,12 +225,7 @@ export default function Game({ profile, activeCategories, mode, settings, onUpda
                 </div>
               )}
             </div>
-          ) : (
-            // In practice mode: show level as read-only indicator
-            <span className="text-xs text-slate-600 bg-white/5 border border-white/8 rounded-full px-3 py-1">
-              {t.level} {currentLevel}
-            </span>
-          )}
+          ) : null /* practice mode: no level indicator — app decides */}
         </div>
 
         {/* Visual */}
