@@ -25,8 +25,11 @@ const DEFAULT_CATEGORIES = (): UserProfile['categories'] => ({
   power:          stat(20),
   squareRoot:     stat(30),
   fractions:      stat(25),
+  decimals:       stat(20),
+  negatives:      stat(20),
   // Algebra & higher
   algebra:        stat(30),
+  proportionality: stat(25),
   geometry:       stat(25),
   trigonometry:   stat(35),
   logarithms:     stat(35),

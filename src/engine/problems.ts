@@ -140,49 +140,91 @@ function algebra(level: ProblemLevel) {
 
 function geometry(level: ProblemLevel) {
   if (level === 1) {
-    const w = rand(2, 15), h = rand(2, 15);
-    return { question: `Perímetro de rectángulo ${w} × ${h}`, answer: 2*(w+h), hint: `P = 2×(${w}+${h}) = ${2*(w+h)}` };
+    const type = pick(['perimeter','angle_tri','angle_supp'] as const);
+    if (type === 'perimeter') {
+      const w = rand(2, 15), h = rand(2, 15);
+      return { question: `Perímetro de rectángulo ${w}×${h}`, answer: 2*(w+h), hint: `P=2×(${w}+${h})=${2*(w+h)}` };
+    }
+    if (type === 'angle_tri') {
+      // Third angle of triangle
+      const a = pick([30,40,45,50,60,70,80]), b = pick([30,40,45,50,60,70]);
+      if (a + b >= 180) return { question: `Ángulos de triángulo: 60° y 60°. ¿Tercero?`, answer: 60, hint: `60+60+?=180 → ?=60` };
+      return { question: `Triángulo: ángulos ${a}° y ${b}°. ¿Tercer ángulo?`, answer: 180-a-b, hint: `La suma de ángulos en triángulo = 180°: ${a}+${b}+?=180 → ?=${180-a-b}` };
+    }
+    // Supplementary/complementary angles
+    const a = rand(20, 80);
+    const type2 = pick(['supp','comp'] as const);
+    if (type2 === 'supp') return { question: `Ángulos suplementarios: uno es ${a}°. ¿El otro?`, answer: 180-a, hint: `Suplementarios suman 180°: 180−${a}=${180-a}` };
+    return { question: `Ángulos complementarios: uno es ${a}°. ¿El otro?`, answer: 90-a, hint: `Complementarios suman 90°: 90−${a}=${90-a}` };
   }
   if (level === 2) {
-    const shape = pick(['rect','tri','square'] as const);
-    if (shape === 'square') {
+    const type = pick(['area_rect','area_tri','area_square','symmetry'] as const);
+    if (type === 'area_square') {
       const s = rand(2, 15);
-      return { question: `Área de cuadrado, lado ${s}`, answer: s*s, hint: `A = lado² = ${s}² = ${s*s}` };
+      return { question: `Área de cuadrado, lado ${s}`, answer: s*s, hint: `A=lado²=${s}²=${s*s}` };
     }
-    if (shape === 'rect') {
+    if (type === 'area_rect') {
       const w = rand(2, 20), h = rand(2, 20);
-      return { question: `Área de rectángulo ${w} × ${h}`, answer: w*h, hint: `A = ${w}×${h} = ${w*h}` };
+      return { question: `Área de rectángulo ${w}×${h}`, answer: w*h, hint: `A=${w}×${h}=${w*h}` };
     }
-    const b = rand(2, 20), h = rand(2, 20) * 2;
-    return { question: `Área triángulo, base ${b}, altura ${h}`, answer: (b*h)/2, hint: `A = base×altura÷2 = ${b*h/2}` };
+    if (type === 'area_tri') {
+      const b = rand(2, 20), h = (rand(2, 10)) * 2;
+      return { question: `Área triángulo, base ${b}, altura ${h}`, answer: (b*h)/2, hint: `A=base×altura÷2=${b*h/2}` };
+    }
+    // Ejes de simetría
+    return mkq([
+      { q: `¿Cuántos ejes de simetría tiene un cuadrado?`,             a: 4,  hint: `4 diagonales + horizontales + verticales = 4` },
+      { q: `¿Cuántos ejes de simetría tiene un triángulo equilátero?`, a: 3,  hint: `Una por cada vértice = 3` },
+      { q: `¿Cuántos ejes de simetría tiene un rectángulo?`,           a: 2,  hint: `Solo horizontal y vertical = 2` },
+      { q: `¿Cuántos ejes de simetría tiene un círculo?`,              a: 0,  hint: `Infinitos, pero como número exacto preguntamos: ∞ → en este contexto responde 0 para "no se puede contar"` },
+      { q: `¿Cuántos ejes de simetría tiene un pentágono regular?`,    a: 5,  hint: `Uno por cada lado/vértice` },
+      { q: `¿Cuántos ejes de simetría tiene un hexágono regular?`,     a: 6,  hint: `6 ejes para polígono regular de 6 lados` },
+    ]);
   }
   if (level === 3) {
-    const shape = pick(['circle','volume'] as const);
-    if (shape === 'circle') {
+    const type = pick(['circle','volume','interior_angle'] as const);
+    if (type === 'circle') {
       const r = rand(1, 10);
       const area = Math.round(3.14159 * r * r);
-      return { question: `Área del círculo, radio ${r} (π≈3.14, redondea)`, answer: area, hint: `A = π×r² ≈ 3.14×${r}² ≈ ${area}` };
+      const circ = Math.round(2 * 3.14159 * r);
+      return pick([
+        { question: `Área del círculo, radio ${r} (π≈3.14)`, answer: area, hint: `A=π×r²≈3.14×${r}²≈${area}` },
+        { question: `Circunferencia, radio ${r} (π≈3.14)`,   answer: circ, hint: `C=2πr≈2×3.14×${r}≈${circ}` },
+      ]);
     }
-    const l = rand(2, 10), w = rand(2, 10), h = rand(2, 10);
-    return { question: `Volumen de caja ${l}×${w}×${h}`, answer: l*w*h, hint: `V = l×w×h = ${l*w*h}` };
+    if (type === 'volume') {
+      const l = rand(2, 10), w = rand(2, 10), h = rand(2, 10);
+      return { question: `Volumen de caja ${l}×${w}×${h}`, answer: l*w*h, hint: `V=l×w×h=${l*w*h}` };
+    }
+    // Ángulo interior de polígono regular = (n-2)×180/n
+    const n = pick([3, 4, 5, 6, 8, 9, 10, 12]);
+    const angle = (n - 2) * 180 / n;
+    return { question: `Ángulo interior de polígono regular de ${n} lados`, answer: angle, hint: `(${n}-2)×180÷${n}=${(n-2)*180}÷${n}=${angle}°` };
   }
-  // Level 4: Pythagorean theorem
-  const triples: [number,number,number][] = [[3,4,5],[5,12,13],[8,15,17],[7,24,25],[6,8,10],[9,12,15]];
-  const [a, b, c] = pick(triples);
-  const k = rand(1, 3);
-  return {
-    question: `Triángulo rectángulo: catetos ${a*k} y ${b*k}. ¿Hipotenusa?`,
-    answer: c*k,
-    hint: `c = √(${a*k}²+${b*k}²) = √${(a*k)**2+(b*k)**2} = ${c*k}`,
-  };
+  // Level 4: Pitágoras + diagonal de rectángulo + pendiente
+  const type = pick(['pythag','diagonal','slope'] as const);
+  if (type === 'pythag') {
+    const triples: [number,number,number][] = [[3,4,5],[5,12,13],[8,15,17],[7,24,25],[6,8,10],[9,12,15]];
+    const [a, b, c] = pick(triples), k = rand(1, 3);
+    return { question: `Triángulo rectángulo: catetos ${a*k} y ${b*k}. ¿Hipotenusa?`, answer: c*k, hint: `√(${(a*k)**2}+${(b*k)**2})=${c*k}` };
+  }
+  if (type === 'diagonal') {
+    const triples: [number,number,number][] = [[3,4,5],[5,12,13],[6,8,10],[9,12,15]];
+    const [a, b, c] = pick(triples), k = rand(1, 2);
+    return { question: `Diagonal del rectángulo ${a*k}×${b*k}`, answer: c*k, hint: `d=√(${a*k}²+${b*k}²)=${c*k}` };
+  }
+  // Pendiente
+  const x1 = rand(0, 3), y1 = rand(0, 3), x2 = rand(x1+1, x1+5), y2 = rand(y1+1, y1+5);
+  const slope = y2 - y1; // only integer slopes
+  return { question: `Pendiente entre (${x1},${y1}) y (${x2},${y1+slope}). ¿m?`, answer: slope/(x2-x1), hint: `m=(${y1+slope}-${y1})÷(${x2}-${x1})=${slope}÷${x2-x1}=${round2(slope/(x2-x1))}` };
 }
 
 // ── Fractions ─────────────────────────────────────────────────────────────────
 
 function fractions(level: ProblemLevel) {
-  if (level <= 2) {
-    const denom = rand(2, level === 1 ? 5 : 8);
-    const numer = rand(1, denom - 1);
+  if (level === 1) {
+    // Lectura visual de fracción
+    const denom = rand(2, 5), numer = rand(1, denom - 1);
     return {
       question: `¿Cuántas partes están marcadas?`,
       answer: numer,
@@ -190,16 +232,62 @@ function fractions(level: ProblemLevel) {
       hint: `Fracción ${numer}/${denom}: hay ${numer} partes activas de ${denom}`,
     };
   }
-  const denom = rand(2, level === 3 ? 6 : 10);
-  const numer = rand(1, denom - 1);
-  const mult  = rand(2, level === 3 ? 8 : 15);
-  const whole = denom * mult;
-  return {
-    question: `¿Cuánto es ${numer}/${denom} de ${whole}?`,
-    answer: numer * mult,
-    visual: { type: 'fraction-bar' as const, active: numer, total: denom } as ProblemVisual,
-    hint: `(${whole}÷${denom})×${numer} = ${mult}×${numer} = ${numer*mult}`,
-  };
+  if (level === 2) {
+    // Fracción de un número + suma/resta mismo denominador
+    const type = pick(['of_num','add_sub'] as const);
+    if (type === 'of_num') {
+      const denom = rand(2, 6), numer = rand(1, denom - 1), mult = rand(2, 8);
+      const whole = denom * mult;
+      return {
+        question: `¿Cuánto es ${numer}/${denom} de ${whole}?`,
+        answer: numer * mult,
+        visual: { type: 'fraction-bar' as const, active: numer, total: denom } as ProblemVisual,
+        hint: `${whole}÷${denom}×${numer}=${mult}×${numer}=${numer*mult}`,
+      };
+    }
+    // Suma/resta mismo denominador → numerador resultado
+    const denom = rand(3, 8), a = rand(1, denom - 2), b = rand(1, denom - a - 1);
+    const op = pick(['+', '-'] as const);
+    const ans = op === '+' ? a + b : a - b;
+    return { question: `${a}/${denom} ${op} ${b}/${denom} = ?/${denom} (¿el numerador?)`, answer: ans, hint: `Mismo denominador: ${a}${op}${b}=${ans}` };
+  }
+  if (level === 3) {
+    // Suma/resta denominadores distintos, multiplicación de fracciones
+    const type = pick(['diff_denom','multiply','simplify'] as const);
+    if (type === 'diff_denom') {
+      // Result is always integer for simplicity
+      const pairs = [[1,2,1,4],[1,3,1,6],[2,3,1,3],[3,4,1,4],[1,2,1,6],[2,5,1,5]] as [number,number,number,number][];
+      const [n1,d1,n2,d2] = pick(pairs);
+      const lcm = d1*d2/gcd(d1,d2);
+      const ans = (n1*(lcm/d1) + n2*(lcm/d2));
+      return { question: `${n1}/${d1} + ${n2}/${d2} = ? (numerador sobre ${lcm})`, answer: ans, hint: `MCM=${lcm}: ${n1*(lcm/d1)}/${lcm}+${n2*(lcm/d2)}/${lcm}=${ans}/${lcm}` };
+    }
+    if (type === 'multiply') {
+      // (a/b)×(c/d) → result as decimal
+      const pairs = [[1,2,1,2,0.25],[2,3,3,4,0.5],[1,4,4,1,1],[3,4,2,3,0.5],[1,3,3,2,0.5]] as [number,number,number,number,number][];
+      const [a,b,c,d,ans] = pick(pairs);
+      return { question: `(${a}/${b}) × (${c}/${d}) = ?`, answer: ans, hint: `Numeradores: ${a}×${c}=${a*c}. Denominadores: ${b}×${d}=${b*d}. Simplifica: ${ans}` };
+    }
+    // Fracciones de un entero con denominador mayor
+    const denom = rand(4, 10), numer = rand(1, denom-1), mult = rand(3, 12);
+    return { question: `${numer}/${denom} de ${denom*mult} = ?`, answer: numer*mult, hint: `${denom*mult}÷${denom}×${numer}=${mult}×${numer}=${numer*mult}` };
+  }
+  // Level 4: división de fracciones, números mixtos, comparación
+  const type = pick(['divide','mixed','compare'] as const);
+  if (type === 'divide') {
+    const divPairs = [[3,4,1,2,1.5],[2,3,1,3,2],[5,6,1,3,2.5],[1,2,1,4,2],[3,5,3,10,2]] as [number,number,number,number,number][];
+    const [a,b,c,d,ans] = pick(divPairs);
+    return { question: `(${a}/${b}) ÷ (${c}/${d}) = ?`, answer: ans, hint: `Invertir y multiplicar: ${a}/${b}×${d}/${c}=${a*d}/${b*c}=${ans}` };
+  }
+  if (type === 'mixed') {
+    // Número mixto → fracción impropia
+    const w = rand(1,4), n = rand(1,5), d = rand(2,6);
+    return { question: `${w} y ${n}/${d} como fracción impropia: ?/${d} (numerador)`, answer: w*d+n, hint: `${w}×${d}+${n}=${w*d+n}` };
+  }
+  // Comparación: qué fracción es mayor (responde el numerador mayor como pista)
+  const d1 = rand(2,5), n1 = rand(1,d1-1), d2 = rand(2,5), n2 = rand(1,d2-1);
+  const v1 = n1/d1, v2 = n2/d2;
+  return { question: `¿Es mayor ${n1}/${d1} o ${n2}/${d2}? (responde 1 si ${n1}/${d1}, 2 si ${n2}/${d2})`, answer: v1 >= v2 ? 1 : 2, hint: `${n1}/${d1}=${round2(v1)}, ${n2}/${d2}=${round2(v2)}` };
 }
 
 // ── Clock Time ────────────────────────────────────────────────────────────────
@@ -820,48 +908,88 @@ function sequences(level: ProblemLevel) {
 
 function numberTheory(level: ProblemLevel) {
   if (level === 1) {
-    // Is this number prime?
-    const primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47];
-    const nonPrimes = [4,6,8,9,10,12,14,15,16,18,20,21,22,24,25];
-    const isPrime = rand(0,1) === 0;
-    const n = isPrime ? pick(primes) : pick(nonPrimes);
-    return {
-      question: `¿Es ${n} un número primo? (responde 1=Sí, 0=No)`,
-      answer: isPrime ? 1 : 0,
-      hint: isPrime ? `${n} sólo es divisible por 1 y por sí mismo` : `${n} es divisible por ${n > 2 ? (n % 2 === 0 ? 2 : 3) : 1}`,
-    };
+    const type = pick(['prime','divisibility','roman'] as const);
+    if (type === 'prime') {
+      const primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47];
+      const nonPrimes = [4,6,8,9,10,12,14,15,16,18,20,21,22,24,25];
+      const isPrime = rand(0,1) === 0;
+      const n = isPrime ? pick(primes) : pick(nonPrimes);
+      return { question: `¿Es ${n} primo? (1=Sí, 0=No)`, answer: isPrime ? 1 : 0, hint: isPrime ? `${n} solo divisible por 1 y ${n}` : `${n} es divisible por ${n%2===0?2:3}` };
+    }
+    if (type === 'divisibility') {
+      return mkq([
+        { q: `¿Es 84 divisible entre 4? (1=Sí 0=No)`,  a: 1, hint: `Regla del 4: últimas 2 cifras (84÷4=21) ✓` },
+        { q: `¿Es 135 divisible entre 3? (1=Sí 0=No)`, a: 1, hint: `Regla del 3: suma dígitos 1+3+5=9, divisible por 3 ✓` },
+        { q: `¿Es 246 divisible entre 6? (1=Sí 0=No)`, a: 1, hint: `Divisible por 2 y 3: par ✓, 2+4+6=12 ✓` },
+        { q: `¿Es 125 divisible entre 5? (1=Sí 0=No)`, a: 1, hint: `Termina en 5 ✓` },
+        { q: `¿Es 73 divisible entre 2? (1=Sí 0=No)`,  a: 0, hint: `Termina en 3 (impar) → no es divisible por 2` },
+        { q: `¿Es 200 divisible entre 8? (1=Sí 0=No)`, a: 1, hint: `Regla del 8: últimas 3 cifras 200÷8=25 ✓` },
+      ]);
+    }
+    // Numeración romana — básico
+    return mkq([
+      { q: `IV en decimal = ?`,   a: 4,   hint: `IV = 5−1 = 4` },
+      { q: `IX en decimal = ?`,   a: 9,   hint: `IX = 10−1 = 9` },
+      { q: `XL en decimal = ?`,   a: 40,  hint: `XL = 50−10 = 40` },
+      { q: `XIV en decimal = ?`,  a: 14,  hint: `XIV = 10+4 = 14` },
+      { q: `XXI en decimal = ?`,  a: 21,  hint: `XXI = 20+1 = 21` },
+      { q: `VII en decimal = ?`,  a: 7,   hint: `VII = 5+1+1 = 7` },
+    ]);
   }
   if (level === 2) {
-    // GCD / LCM
-    const a = rand(2, 20), b = rand(2, 20);
-    const g = gcd(a, b), l = (a * b) / g;
-    return pick([
-      { question: `MCD(${a}, ${b}) = ?`, answer: g, hint: `Máximo Común Divisor: factores comunes` },
-      { question: `MCM(${a}, ${b}) = ?`, answer: l, hint: `Mínimo Común Múltiplo = ${a}×${b}÷MCD(${a},${b}) = ${l}` },
+    const type = pick(['gcdlcm','roman_adv','divisibility2'] as const);
+    if (type === 'gcdlcm') {
+      const a = rand(2, 20), b = rand(2, 20);
+      const g = gcd(a, b), l = (a * b) / g;
+      return pick([
+        { question: `MCD(${a}, ${b}) = ?`, answer: g, hint: `Factores comunes de ${a} y ${b}` },
+        { question: `MCM(${a}, ${b}) = ?`, answer: l, hint: `${a}×${b}÷MCD=${a*b}÷${g}=${l}` },
+      ]);
+    }
+    if (type === 'roman_adv') {
+      return mkq([
+        { q: `XC en decimal = ?`,    a: 90,  hint: `XC = 100−10 = 90` },
+        { q: `CD en decimal = ?`,    a: 400, hint: `CD = 500−100 = 400` },
+        { q: `XLIV en decimal = ?`,  a: 44,  hint: `XL=40, IV=4 → 44` },
+        { q: `XCIX en decimal = ?`,  a: 99,  hint: `XC=90, IX=9 → 99` },
+        { q: `CCXL en decimal = ?`,  a: 240, hint: `CC=200, XL=40 → 240` },
+        { q: `4 en romano (I=1,V=5,X=10): responde 4`,  a: 4, hint: `IV` },
+      ]);
+    }
+    return mkq([
+      { q: `¿Cuántos divisores tiene 12?`,  a: 6,  hint: `1,2,3,4,6,12 → 6 divisores` },
+      { q: `¿Cuántos divisores tiene 36?`,  a: 9,  hint: `1,2,3,4,6,9,12,18,36 → 9 divisores` },
+      { q: `¿Cuántos divisores tiene 16?`,  a: 5,  hint: `1,2,4,8,16 → 5 divisores` },
+      { q: `¿Cuántos divisores tiene 30?`,  a: 8,  hint: `1,2,3,5,6,10,15,30 → 8 divisores` },
     ]);
   }
   if (level === 3) {
-    // Prime factorization
+    // Factorización prima, múltiplos comunes
     const composites = [12,18,24,30,36,48,60,72,84,100,120,126];
     const n = pick(composites);
-    // Compute smallest prime factor for hint
     const factor = [2,3,5,7].find(p => n % p === 0) ?? n;
-    return {
-      question: `¿Cuántos factores primos distintos tiene ${n}?`,
-      answer: new Set([2,3,5,7,11,13].filter(p => n % p === 0)).size,
-      hint: `Factoriza ${n}: empieza dividiendo por ${factor}`,
-    };
+    const type = pick(['prime_factors','roman_full','multiples'] as const);
+    if (type === 'prime_factors') {
+      return { question: `¿Cuántos factores primos distintos tiene ${n}?`, answer: new Set([2,3,5,7,11,13].filter(p => n % p === 0)).size, hint: `Factoriza ${n}: empieza con ${factor}` };
+    }
+    if (type === 'roman_full') {
+      return mkq([
+        { q: `MCMXCIX en decimal = ?`, a: 1999, hint: `M=1000, CM=900, XC=90, IX=9 → 1999` },
+        { q: `MMXXIV en decimal = ?`,  a: 2024, hint: `MM=2000, XX=20, IV=4 → 2024` },
+        { q: `CDXLIV en decimal = ?`,  a: 444,  hint: `CD=400, XL=40, IV=4 → 444` },
+        { q: `DCCC en decimal = ?`,    a: 800,  hint: `D=500, CCC=300 → 800` },
+      ]);
+    }
+    // Múltiplos comunes
+    const a = rand(2,6), b = rand(2,6), g = gcd(a,b), l = a*b/g;
+    return { question: `¿Cuál es el menor múltiplo común de ${a} y ${b}?`, answer: l, hint: `MCM(${a},${b})=${l}` };
   }
-  // Level 4: modular arithmetic
+  // Level 4: aritmética modular
   const m = pick([5,7,9,11,12,13]);
   const a = rand(10, 99), b = rand(10, 99);
   const op = pick(['sum','product'] as const);
   const result = op === 'sum' ? (a + b) % m : (a * b) % m;
-  return {
-    question: `(${a} ${op === 'sum' ? '+' : '×'} ${b}) mod ${m} = ?`,
-    answer: result,
-    hint: `${op === 'sum' ? a+b : a*b} ÷ ${m} = ... resto ${result}`,
-  };
+  return { question: `(${a} ${op === 'sum' ? '+' : '×'} ${b}) mod ${m} = ?`, answer: result, hint: `${op === 'sum' ? a+b : a*b}÷${m}: resto=${result}` };
 }
 
 // ── Statistics & Probability ──────────────────────────────────────────────────
@@ -990,6 +1118,206 @@ function vedic(level: ProblemLevel) {
   return pick(pool)(level);
 }
 
+// ── Negative Numbers ──────────────────────────────────────────────────────────
+
+function negatives(level: ProblemLevel) {
+  if (level === 1) {
+    // Subtraction to negatives, adding negatives — number line intuition
+    const type = pick(['sub_neg','neg_plus','neg_neg'] as const);
+    if (type === 'sub_neg') {
+      const a = rand(1, 5), b = rand(a + 1, a + 7);
+      return { question: `${a} − ${b} = ?`, answer: a - b, hint: `${a}−${b}=${a-b}. En la recta numérica: parte en ${a} y retrocede ${b}` };
+    }
+    if (type === 'neg_plus') {
+      const neg = -rand(1, 5), pos = rand(1, 8);
+      return { question: `${neg} + ${pos} = ?`, answer: neg + pos, hint: `Mueve ${pos} pasos a la derecha desde ${neg}: resultado ${neg+pos}` };
+    }
+    const a = rand(1, 5), b = rand(1, 5);
+    return { question: `−${a} + (−${b}) = ?`, answer: -(a + b), hint: `Sumar negativos: −${a}−${b} = −${a+b}` };
+  }
+  if (level === 2) {
+    // Multiplicación/división con negativos + reglas de signos
+    const type = pick(['mul','div','signs'] as const);
+    if (type === 'mul') {
+      const a = rand(2, 7), b = rand(2, 7), sign = pick([-1, 1]);
+      return { question: `${sign < 0 ? '−' : ''}${a} × ${b} = ?`, answer: sign * a * b, hint: `${sign < 0 ? 'negativo' : 'positivo'} × positivo = ${sign < 0 ? 'negativo' : 'positivo'}: ${sign*a*b}` };
+    }
+    if (type === 'div') {
+      const b = rand(2, 6), c = rand(2, 6), sign = pick([-1, 1]);
+      return { question: `${sign < 0 ? '−' : ''}${b * c} ÷ ${b} = ?`, answer: sign * c, hint: `${sign*b*c}÷${b}=${sign*c}` };
+    }
+    return mkq([
+      { q: `(−3) × (−4) = ?`,  a: 12,  hint: `(−)×(−) = (+): 3×4=12` },
+      { q: `(−5) × 2 = ?`,     a: -10, hint: `(−)×(+) = (−): 5×2=10 → −10` },
+      { q: `(−12) ÷ (−3) = ?`, a: 4,   hint: `(−)÷(−) = (+): 12÷3=4` },
+      { q: `18 ÷ (−6) = ?`,    a: -3,  hint: `(+)÷(−) = (−): 18÷6=3 → −3` },
+      { q: `(−7) × (−7) = ?`,  a: 49,  hint: `(−)×(−) = (+): 7×7=49` },
+      { q: `(−24) ÷ 4 = ?`,    a: -6,  hint: `(−)÷(+) = (−): 24÷4=6 → −6` },
+    ]);
+  }
+  if (level === 3) {
+    // Orden de operaciones, potencias de negativos
+    return mkq([
+      { q: `2 − (−3) = ?`,      a: 5,   hint: `Restar negativo = sumar: 2+3=5` },
+      { q: `−5 − (−8) = ?`,     a: 3,   hint: `−5+8=3` },
+      { q: `(−4)² = ?`,         a: 16,  hint: `(−4)×(−4)=16 (par → positivo)` },
+      { q: `−4² = ?`,           a: -16, hint: `−(4²)=−16. ¡No es lo mismo que (−4)²!` },
+      { q: `3×(−2)+5 = ?`,      a: -1,  hint: `Primero ×: −6+5=−1` },
+      { q: `(−3)³ = ?`,         a: -27, hint: `(−3)×(−3)×(−3)=9×(−3)=−27 (impar → negativo)` },
+      { q: `−2×(3−7) = ?`,      a: 8,   hint: `−2×(−4)=8` },
+      { q: `(−1)¹⁰⁰ = ?`,       a: 1,   hint: `Potencia par de negativo = positivo` },
+    ]);
+  }
+  // Level 4: valor absoluto, expresiones complejas
+  return mkq([
+    { q: `|−8| = ?`,           a: 8,  hint: `Valor absoluto: distancia al 0, siempre ≥ 0` },
+    { q: `|3 − 7| = ?`,        a: 4,  hint: `|−4|=4` },
+    { q: `−|−5| = ?`,          a: -5, hint: `|−5|=5, luego aplicamos el − exterior: −5` },
+    { q: `(−2)⁴ = ?`,          a: 16, hint: `(−2)×(−2)×(−2)×(−2)=4×4=16` },
+    { q: `−3×(4−7) = ?`,       a: 9,  hint: `−3×(−3)=9` },
+    { q: `|−4| + |−6| = ?`,    a: 10, hint: `4+6=10` },
+    { q: `|5| − |−8| = ?`,     a: -3, hint: `5−8=−3` },
+    { q: `(−2)⁵ = ?`,          a: -32,hint: `Potencia impar de negativo = negativo: −32` },
+  ]);
+}
+
+// ── Decimal Numbers ───────────────────────────────────────────────────────────
+
+function decimals(level: ProblemLevel) {
+  if (level === 1) {
+    // Suma/resta decimales sencillos, valor posicional
+    const type = pick(['add','sub','place'] as const);
+    if (type === 'add') {
+      const a = rand(1, 9), ca = rand(1, 9), b = rand(1, 7), cb = rand(0, 9);
+      const n1 = a + ca / 10, n2 = b + cb / 10;
+      return { question: `${n1} + ${n2} = ?`, answer: round2(n1 + n2), hint: `Alinea las décimas: ${n1}+${n2}=${round2(n1+n2)}` };
+    }
+    if (type === 'sub') {
+      const a = rand(3, 9), ca = rand(1, 9), b = rand(1, a - 1), cb = rand(0, ca - 1 >= 0 ? ca - 1 : 0);
+      const n1 = a + ca / 10, n2 = b + cb / 10;
+      return { question: `${n1} − ${n2} = ?`, answer: round2(n1 - n2), hint: `${n1}−${n2}=${round2(n1-n2)}` };
+    }
+    return mkq([
+      { q: `¿Cuántas décimas en 3.7?`,       a: 37,   hint: `3.7 = 3 unidades + 7 décimas = 37 décimas` },
+      { q: `¿Cuántas centésimas en 2.45?`,   a: 245,  hint: `2.45 = 245 centésimas` },
+      { q: `4 décimas = ? (decimal)`,         a: 0.4,  hint: `4 ÷ 10 = 0.4` },
+      { q: `15 centésimas = ? (decimal)`,     a: 0.15, hint: `15 ÷ 100 = 0.15` },
+      { q: `¿Cuántas décimas en 0.8?`,        a: 8,    hint: `0.8 = 8 décimas` },
+      { q: `25 centésimas = ? (decimal)`,     a: 0.25, hint: `25 ÷ 100 = 0.25` },
+    ]);
+  }
+  if (level === 2) {
+    // Multiplicación decimal × entero, división decimal ÷ entero
+    const type = pick(['mul_int','div_int','compare'] as const);
+    if (type === 'mul_int') {
+      const d = pick([0.2, 0.3, 0.4, 0.5, 1.5, 2.5, 0.25]);
+      const n = rand(2, 8);
+      return { question: `${d} × ${n} = ?`, answer: round2(d * n), hint: `${d}×${n}=${round2(d*n)}` };
+    }
+    if (type === 'div_int') {
+      const d = pick([0.4, 0.6, 0.8, 1.5, 2.4, 3.6, 4.8]);
+      const n = pick([2, 3, 4]);
+      return { question: `${d} ÷ ${n} = ?`, answer: round2(d / n), hint: `${d}÷${n}=${round2(d/n)}` };
+    }
+    return mkq([
+      { q: `0.5 × 0.5 = ?`,  a: 0.25, hint: `5×5=25, dos decimales → 0.25` },
+      { q: `0.2 × 0.3 = ?`,  a: 0.06, hint: `2×3=6, dos decimales → 0.06` },
+      { q: `1.5 × 2 = ?`,    a: 3,    hint: `15×2=30, un decimal → 3.0` },
+      { q: `0.4 × 0.5 = ?`,  a: 0.2,  hint: `4×5=20, dos decimales → 0.20=0.2` },
+      { q: `2.5 × 4 = ?`,    a: 10,   hint: `25×4=100, un decimal → 10.0` },
+    ]);
+  }
+  if (level === 3) {
+    // División decimal entre decimal, operaciones mixtas
+    return mkq([
+      { q: `2.4 ÷ 0.4 = ?`,   a: 6,    hint: `Multiplica ambos por 10: 24÷4=6` },
+      { q: `1.5 ÷ 0.5 = ?`,   a: 3,    hint: `15÷5=3` },
+      { q: `0.6 ÷ 0.2 = ?`,   a: 3,    hint: `6÷2=3` },
+      { q: `3.6 ÷ 0.9 = ?`,   a: 4,    hint: `36÷9=4` },
+      { q: `0.1 × 0.1 = ?`,   a: 0.01, hint: `1×1=1, dos decimales → 0.01` },
+      { q: `1.2 × 1.5 = ?`,   a: 1.8,  hint: `12×15=180, dos decimales → 1.80` },
+      { q: `4.5 ÷ 0.9 = ?`,   a: 5,    hint: `45÷9=5` },
+      { q: `0.8 ÷ 0.04 = ?`,  a: 20,   hint: `80÷4=20` },
+    ]);
+  }
+  // Level 4: fracciones ↔ decimales, decimales periódicos
+  return mkq([
+    { q: `1/4 como decimal = ?`,         a: 0.25,  hint: `1÷4=0.25` },
+    { q: `3/4 como decimal = ?`,         a: 0.75,  hint: `3÷4=0.75` },
+    { q: `1/8 como decimal = ?`,         a: 0.125, hint: `1÷8=0.125` },
+    { q: `5/8 como decimal = ?`,         a: 0.625, hint: `5÷8=0.625` },
+    { q: `1/3 ≈ ? (2 decimales)`,        a: 0.33,  hint: `1÷3=0.333... ≈ 0.33` },
+    { q: `2/3 ≈ ? (2 decimales)`,        a: 0.67,  hint: `2÷3=0.666... ≈ 0.67` },
+    { q: `0.375 = ?/8 (numerador)`,      a: 3,     hint: `0.375 = 3/8` },
+    { q: `¿Cuántas milésimas en 1.024?`, a: 1024,  hint: `1.024 = 1024 milésimas` },
+  ]);
+}
+
+// ── Proportionality & Rule of Three ──────────────────────────────────────────
+
+function proportionality(level: ProblemLevel) {
+  if (level === 1) {
+    // Razón directa simple: si 2→6, entonces 5→?
+    const factor = rand(2, 6);
+    const a = rand(1, 5), b = rand(2, 8);
+    return {
+      question: `Si ${a} → ${a * factor}, ¿a qué corresponde ${b}?`,
+      answer: b * factor,
+      hint: `Factor de proporcionalidad: ×${factor}. Entonces ${b}×${factor}=${b*factor}`,
+    };
+  }
+  if (level === 2) {
+    // Regla de tres directa con contexto
+    const type = pick(['price','speed','recipe','map'] as const);
+    if (type === 'price') {
+      const unit = rand(2, 8), qty1 = rand(2, 5), qty2 = rand(2, 7);
+      return { question: `${qty1} kg cuestan $${qty1*unit}. ¿Cuánto cuestan ${qty2} kg?`, answer: qty2*unit, hint: `$${unit}/kg × ${qty2} = $${qty2*unit}` };
+    }
+    if (type === 'speed') {
+      const spd = pick([60, 80, 100, 120]), t1 = rand(1, 3), t2 = rand(2, 5);
+      return { question: `En ${t1}h recorres ${spd*t1} km. ¿Cuántos km en ${t2}h al mismo ritmo?`, answer: spd*t2, hint: `${spd} km/h × ${t2}h = ${spd*t2} km` };
+    }
+    if (type === 'recipe') {
+      const base = rand(2, 4), mult = rand(2, 3), ingr = pick([100,150,200,250,300,400]);
+      return { question: `Receta para ${base} personas usa ${ingr}g. ¿Para ${base*mult} personas?`, answer: ingr*mult, hint: `×${mult}: ${ingr}×${mult}=${ingr*mult}g` };
+    }
+    const scale = pick([100, 200, 500, 1000]), cm = rand(2, 8);
+    return { question: `Mapa escala 1:${scale}. ${cm}cm en el mapa = ?cm reales`, answer: cm*scale, hint: `${cm}×${scale}=${cm*scale}cm` };
+  }
+  if (level === 3) {
+    // Proporcionalidad inversa, variación porcentual
+    const type = pick(['inverse','pct_change','missing'] as const);
+    if (type === 'inverse') {
+      const w1 = rand(2, 5), d1 = rand(4, 10);
+      const w2 = w1 * 2;
+      return { question: `${w1} obreros tardan ${d1} días. ¿Cuántos días tardan ${w2} obreros? (proporcionalidad inversa)`, answer: d1/2, hint: `Inv: ${w1}×${d1}=${w2}×? → ?=${w1*d1}÷${w2}=${d1/2}` };
+    }
+    if (type === 'pct_change') {
+      const base = pick([50, 80, 100, 120, 200]);
+      const pct = pick([10, 20, 25, 50]);
+      const up = pick([true, false]);
+      const result = round2(base * (up ? 1 + pct/100 : 1 - pct/100));
+      return { question: `$${base} ${up ? 'sube' : 'baja'} un ${pct}%. ¿Nuevo valor?`, answer: result, hint: `${base}×${up ? 1+pct/100 : 1-pct/100}=${result}` };
+    }
+    // Encontrar el valor que falta en una proporción: a/b = c/?
+    const a = rand(2, 6), b = rand(2, 6), c = rand(2, 6);
+    const d = Math.round(b * c / a);
+    if (a * d !== b * c) {
+      return { question: `${a}/10 = ${b}/? (proporción)`, answer: b * 10 / a, hint: `Proporciones: producto cruzado ${a}×?=${b}×10 → ?=${b*10/a}` };
+    }
+    return { question: `${a}/${b} = ${c}/? (proporción)`, answer: d, hint: `Producto cruzado: ${a}×?=${b}×${c} → ?=${b*c/a}=${d}` };
+  }
+  // Level 4: regla de tres compuesta, escalas, tipos de cambio
+  return mkq([
+    { q: `3 obreros en 8 días. ¿Obreros para hacerlo en 6 días?`,      a: 4,   hint: `3×8=24 obra total → 24÷6=4 obreros` },
+    { q: `Escala 1:50000. 4cm → ? km`,                                  a: 2,   hint: `4×50000=200000cm=2km` },
+    { q: `1€ = 1.1$. ¿200€ en dólares?`,                               a: 220, hint: `200×1.1=220$` },
+    { q: `Mezcla: 2 partes agua + 3 partes zumo = 500ml. ¿ml de zumo?`, a: 300, hint: `3/5×500=300ml` },
+    { q: `A 80 km/h tardo 3h. ¿Tiempo a 120 km/h? (inverso, en h)`,    a: 2,   hint: `80×3=240km → 240÷120=2h` },
+    { q: `Si 5 máquinas producen 100 en 4h, ¿cuánto producen 5 máq en 8h?`, a: 200, hint: `100÷4×8=200` },
+  ]);
+}
+
 // ── Entry point ───────────────────────────────────────────────────────────────
 
 type GenResult = { question: string; answer: number; visual?: ProblemVisual; hint?: string };
@@ -997,7 +1325,8 @@ type GenResult = { question: string; answer: number; visual?: ProblemVisual; hin
 const GENERATORS: Record<CategoryId, (l: ProblemLevel) => GenResult> = {
   addition, subtraction, multiplication, division,
   percentage, power, squareRoot, fractions,
-  algebra, geometry, trigonometry, logarithms, sequences,
+  decimals, negatives,
+  algebra, proportionality, geometry, trigonometry, logarithms, sequences,
   numberTheory, vedic,
   clockTime, calendarMath, moneyMath, financialMath, converting,
   statistics, chemistry, physics, computing,

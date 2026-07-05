@@ -2,8 +2,10 @@ export type CategoryId =
   // Core arithmetic
   | 'addition' | 'subtraction' | 'multiplication' | 'division'
   | 'percentage' | 'power' | 'squareRoot' | 'fractions'
+  // Numbers extended
+  | 'decimals' | 'negatives'
   // Algebra & higher
-  | 'algebra' | 'geometry' | 'trigonometry' | 'logarithms' | 'sequences'
+  | 'algebra' | 'proportionality' | 'geometry' | 'trigonometry' | 'logarithms' | 'sequences'
   // Number theory & mental math
   | 'numberTheory' | 'vedic'
   // Applied / everyday
