@@ -26,7 +26,7 @@ cd ~/Projects/mathbrain
 npm install
 ```
 
-Solo necesitas hacer esto una vez (o cuando alguien agregue nuevas dependencias).
+Solo necesitas hacer esto una vez (o cuando se agreguen nuevas dependencias).
 
 ---
 
@@ -54,46 +54,100 @@ npm run preview
 
 ---
 
-## Categorías de matemáticas
+## Temario completo por categoría
 
-| Sección | Categorías |
-|---|---|
-| **Aritmética** | Suma, Resta, Multiplicación, División |
-| **Números** | Porcentaje, Fracciones, Potencias, Raíz Cuadrada |
-| **Álgebra & Análisis** | Álgebra, Geometría, Trigonometría, Logaritmos, Sucesiones |
-| **Teoría & Mental** | Teoría de Números, Mente Védica |
-| **Uso Cotidiano** | Reloj, Calendario, Dinero & Propinas, Finanzas & Inversión, Medidas & Unidades |
-| **Ciencia & Tecnología** | Estadística & Probabilidad, Química, Física & Espacio, Computación |
+### 🔢 Aritmética
 
-**Computación** incluye: binario, octal, hexadecimal, bytes/KB/MB, bit shifts, ASCII, AND/OR/XOR, complemento a dos, álgebra booleana.
-
-**Medidas** incluye: métrico, imperial (libras, millas, pulgadas, galones), temperatura °C↔°F, velocidad km/h↔m/s.
-
-**Física** incluye: cinemática (d=v×t), caída libre, aceleración, fuerza, energía, presión, electricidad, aeroespacial.
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Suma** | Números hasta 20, con ayuda visual de puntos | Números hasta 100 | Números hasta 1000, decimales | Fracciones, negativos, sumas en cadena |
+| **Resta** | Números hasta 20, con ayuda visual | Números hasta 100 | Números hasta 1000, decimales | Negativos, fracciones, resta en cadena |
+| **Multiplicación** | Tablas 1–5 con cuadrícula visual | Tablas 1–10 (visual si factores ≤5) | Tablas hasta 12, por decenas | Multiplicación de 2 cifras, mentales avanzados |
+| **División** | Divisiones exactas simples, con grupos visuales | Divisiones hasta 100 | Divisiones con decimales | División larga, residuos, fracciones |
 
 ---
 
-## Cómo funciona
+### 🔣 Números
 
-### Niveles adaptativos
-La app detecta tu sweet spot y sube o baja de nivel automáticamente:
-- **92%+ en 5 problemas** → avance rápido (nivel muy fácil)
-- **84%+ en 8 problemas** → avance normal
-- **77%+ en 15 problemas** → avance lento (estás en el sweet spot)
-- **<35% en 5 problemas** → baja de nivel
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Porcentaje** | % de cantidades redondas (50%, 25%, 10%) | % de cualquier número | Variaciones porcentuales, descuentos | Interés compuesto, porcentajes encadenados |
+| **Fracciones** | Fracciones simples con barra visual (½, ⅓, ¼…) | Suma y resta de fracciones mismo denominador | Denominadores distintos, simplificación | Multiplicación y división de fracciones |
+| **Potencias** | Cuadrados del 1 al 10 | Cubos, potencias de 2 | Potencias negativas, fraccionales | Leyes de exponentes, notación científica |
+| **Raíz cuadrada** | √ de cuadrados perfectos hasta 100 | √ hasta 400 | √ de fracciones, simplificación | Raíces cúbicas, raíces no perfectas aproximadas |
 
-### Penalización por abandono
-Si no practicas una categoría en **5 días** y está en nivel >1, baja un nivel automáticamente al abrir la app. En modo práctica no puedes ignorar esto.
+---
 
-### Prompt de distracción
-Si el tiempo expira y no escribiste nada, aparece "¿Estabas distraído?" — presiona **A** (sí, no cuenta) o **N** (no, cuenta como error).
+### 📐 Álgebra & Análisis
 
-### Dos modos de juego
-- **Click en una categoría** → modo individual, puedes elegir el nivel manualmente
-- **Botón "Practicar"** → modo práctica multi-categoría, la app elige los niveles por ti
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Álgebra** | Ecuaciones lineales simples (`x + 3 = 7`) | Ecuaciones con multiplicación/división (`3x = 12`) | Sistemas de 2 ecuaciones, despeje | Ecuaciones cuadráticas, factorización |
+| **Geometría** | Perímetro de rectángulos y triángulos | Área de rectángulos, triángulos, círculos | Volumen de cubos y cilindros | Teorema de Pitágoras, diagonales, geometría analítica |
+| **Trigonometría** | sin/cos/tan de ángulos comunes (0°, 30°, 45°, 60°, 90°) | Identidad pitagórica sin²+cos²=1, calcular tan | Conversión grados ↔ radianes | Ley de senos, ley de cosenos |
+| **Logaritmos** | log₁₀ de potencias de 10 | log₂ de potencias de 2, log₁₀ general | ln (logaritmo natural), propiedades (producto, cociente) | Cambio de base, ecuaciones logarítmicas |
+| **Sucesiones** | Sucesiones aritméticas simples (hallar el siguiente término) | Sucesiones geométricas, Fibonacci | Suma de serie aritmética (Σ fórmula) | Suma de serie geométrica, series infinitas |
 
-### Racha diaria
-Estilo Duolingo — practica cada día para mantener la racha 🔥
+---
+
+### 🧠 Teoría & Mental
+
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Teoría de Números** | Números primos hasta 30, par/impar | MCD y MCM de números pequeños | Aritmética modular (resto de divisiones) | Teorema de Fermat, criptografía básica, factorización |
+| **Mente Védica** | Multiplicación por 11, cuadrados terminados en 5 | Multiplicación cruzada 2×2, complementos a 100 | Cuadrados de números cercanos a 100, división por 9 | Técnicas combinadas, cálculo mental rápido |
+
+---
+
+### 🕐 Uso Cotidiano
+
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Reloj** | Leer la hora en punto y media | Calcular diferencias de minutos | Zonas horarias, conversión 12h↔24h | Duraciones complejas, sumas de tiempos |
+| **Calendario** | Días de la semana, meses | ¿Qué día cae X fecha? Días entre fechas | Semanas, bisiesto, trimestres | Plazos en meses, cálculos de fechas laborales |
+| **Dinero & Propinas** | Contar billetes y monedas | Calcular cambio, propinas del 10%/15% | Propinas del 18%/20%, dividir cuenta entre varias personas | Descuentos acumulados, conversión de monedas |
+| **Finanzas & Inversión** | Interés simple (I = P×r×t) | Interés compuesto anual | ROI, regla del 72, inflación | Break-even, margen bruto, depreciación, TEA |
+| **Medidas & Unidades** | km↔m, kg↔g, L↔mL (métrico básico) | m↔cm, horas↔minutos, toneladas, áreas | °C↔°F, kg↔libras, km↔millas, pulgadas, km/h↔m/s | d=v×t, galones↔litros, libras→gramos, kJ, atm↔Pa |
+
+---
+
+### 🔬 Ciencia & Tecnología
+
+| Categoría | Nivel 1 | Nivel 2 | Nivel 3 | Nivel 4 |
+|---|---|---|---|---|
+| **Estadística & Probabilidad** | Media, mediana, moda de listas pequeñas | Desviación media, rango, probabilidad simple | Probabilidad condicional, regla del producto | Combinaciones C(n,r), permutaciones P(n,r), distribución |
+| **Química** | Masas atómicas de elementos comunes (H, C, O, Fe…) | Masa molar de moléculas simples (H₂O, CO₂, NaCl…) | Masa molar de moléculas complejas (glucosa, H₂SO₄…) | Estequiometría: g = mol × M |
+| **Física & Espacio** | Cinemática: d=v×t, v=d/t, t=d/v; aceleración; caída libre | F=ma, peso (F=mg), densidad, velocidad relativa | Energía cinética Ek=½mv², potencial Ep=mgh, trabajo, presión | Leyes de Kepler, velocidad orbital, Ley de Hubble, Ohm, termodinámica, velocidad de escape |
+| **Computación** | Binario↔decimal (4 bits), decimal→binario, octal básico | Hexadecimal↔decimal, octal 2 dígitos, bytes/KB/MB/GB | Bit shifts (<<, >>), NOT, suma binaria, valores ASCII | AND/OR/XOR, complemento a dos, hex↔binario directo, álgebra booleana |
+
+---
+
+## Cómo funciona el sistema adaptativo
+
+```
+Precisión ≥ 92% en 5 problemas  →  sube de nivel rápido
+Precisión ≥ 84% en 8 problemas  →  sube de nivel normal
+Precisión ≥ 77% en 15 problemas →  sube de nivel lento  ← sweet spot
+Precisión  < 35% en 5 problemas →  baja de nivel
+Sin practicar ≥ 5 días          →  baja de nivel (penalización)
+```
+
+El objetivo es mantenerte en el **sweet spot**: la zona donde fallas lo justo para que el cerebro trabaje y aprenda de verdad, sin ser ni muy fácil ni frustrante.
+
+---
+
+## Características
+
+- **Niveles adaptativos** por categoría — cada una avanza o retrocede de forma independiente
+- **Penalización por abandono** — no practicar durante 5 días baja el nivel; en modo práctica no puedes corregirlo manualmente
+- **Prompt de distracción** — si el tiempo expira sin respuesta, presiona `A` (sí, estaba distraído — no cuenta) o `N` (cuenta como error)
+- **Racha diaria** estilo Duolingo con récord personal 🔥
+- **Gráfica de actividad** de los últimos 30 días + proyección de XP a 30 días
+- **Dos modos de juego:**
+  - Click en una categoría → modo individual, puedes elegir el nivel manualmente
+  - Botón "Practicar" → modo práctica multi-categoría, la app elige los niveles por ti
+- **Múltiples perfiles** con avatares
+- **Export/Import** de perfiles en JSON
 
 ---
 
@@ -101,14 +155,23 @@ Estilo Duolingo — practica cada día para mantener la racha 🔥
 
 ```
 src/
-  components/     # UI — Game, Menu, Stats, Settings, ProfileSelect...
+  components/
+    Game.tsx          # Motor del juego, prompt de distracción, feedback
+    Menu.tsx          # Menú principal con categorías por sección
+    Stats.tsx         # Estadísticas, gráfica de actividad, racha
+    Summary.tsx       # Resumen al final de cada sesión
+    ProfileSelect.tsx # Gestión de perfiles
+    SettingsPanel.tsx # Configuración (idioma, colores, sonidos)
+    VisualDisplay.tsx # Ayudas visuales (cuadrículas, barras)
+    ColoredMath.tsx   # Colorea símbolos matemáticos
+    Abacus.tsx        # Ábaco interactivo de apoyo
   engine/
-    adaptive.ts   # Algoritmo sweet-spot, avance/retroceso de nivel
-    problems.ts   # Generadores de problemas por categoría y nivel
-    storage.ts    # localStorage, perfiles, historial
-    meta.ts       # Etiquetas, colores, íconos, secciones
-  types/          # Tipos TypeScript
-  i18n.ts         # Español / English
+    adaptive.ts       # Algoritmo sweet-spot, avance/retroceso, penalizaciones
+    problems.ts       # Generadores de problemas por categoría y nivel (24 cats)
+    storage.ts        # localStorage, perfiles, historial de sesiones
+    meta.ts           # Etiquetas, colores, íconos, secciones
+  types/index.ts      # Tipos TypeScript
+  i18n.ts             # Español / English
 ```
 
 ---
