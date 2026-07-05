@@ -1,0 +1,848 @@
+<title>MathBrain — Project Summary / Resumen</title>
+<style>
+/* ─── DRACULA (dark) ────────────────────────────────────────────── */
+:root {
+  --bg:        #282a36;
+  --bg2:       #1e1f29;
+  --surface:   #21222c;
+  --surface2:  #2f3044;
+  --border:    rgba(98,114,164,0.28);
+  --border2:   rgba(98,114,164,0.5);
+  --text:      #f8f8f2;
+  --muted:     #8892b0;
+  --dim:       #44475a;
+  --purple:    #bd93f9;
+  --pink:      #ff79c6;
+  --cyan:      #8be9fd;
+  --green:     #50fa7b;
+  --orange:    #ffb86c;
+  --red:       #ff5555;
+  --yellow:    #f1fa8c;
+  --comment:   #6272a4;
+  --heading-font: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace;
+  --body-font:    'Inter', system-ui, -apple-system, sans-serif;
+  --theme-name: 'dracula';
+}
+/* ─── ALUCARD (light) ───────────────────────────────────────────── */
+:root[data-theme="alucard"] {
+  --bg:        #faf3e8;
+  --bg2:       #f0e6d3;
+  --surface:   #fffcf5;
+  --surface2:  #ede0cd;
+  --border:    rgba(100,35,35,0.14);
+  --border2:   rgba(100,35,35,0.28);
+  --text:      #1a0505;
+  --muted:     #7a5050;
+  --dim:       #c4a8a8;
+  --purple:    #6b2d6b;
+  --pink:      #8b0000;
+  --cyan:      #2d6b7a;
+  --green:     #2d7a2d;
+  --orange:    #b5600d;
+  --red:       #8b0000;
+  --yellow:    #b5860d;
+  --comment:   #a07878;
+  --heading-font: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --body-font:    Georgia, 'Times New Roman', serif;
+  --theme-name: 'alucard';
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ─── NAV ──────────────────────────────────────────────────────── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.nav-brand {
+  font-family: var(--heading-font);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.04em;
+}
+.nav-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.toggle-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.toggle-btn:hover { background: var(--surface2); color: var(--text); }
+.toggle-btn.active { background: var(--purple); color: var(--bg); font-weight: 700; }
+:root[data-theme="alucard"] .toggle-btn.active { color: #fff; }
+
+/* ─── LANGUAGE SWITCHING ─────────────────────────────────────── */
+body[data-lang="en"] .es { display: none; }
+body[data-lang="es"] .en { display: none; }
+
+/* ─── WRAPPER ─────────────────────────────────────────────────── */
+.wrapper { max-width: 880px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ─── HERO ─────────────────────────────────────────────────────── */
+.hero {
+  padding: 56px 0 44px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+}
+@media (max-width: 580px) {
+  .hero { grid-template-columns: 1fr; }
+  .problem-demo { display: none; }
+}
+.eyebrow {
+  font-family: var(--heading-font);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--comment);
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: var(--heading-font);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+}
+:root[data-theme="alucard"] h1 { letter-spacing: -0.01em; }
+
+.hero-desc { color: var(--muted); font-size: 14.5px; max-width: 50ch; margin-bottom: 18px; }
+.stack-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  font-family: 'SF Mono','JetBrains Mono',monospace;
+  font-size: 10.5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  color: var(--comment);
+  background: var(--surface);
+}
+
+/* Problem card demo */
+.problem-demo { width: 196px; flex-shrink: 0; }
+.demo-timer { height: 3px; border-radius: 9px; background: var(--surface2); overflow: hidden; margin-bottom: 10px; }
+.demo-timer-fill { height: 100%; width: 58%; background: var(--green); border-radius: 9px; }
+.demo-cat {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(189,147,249,0.12); border: 1px solid rgba(189,147,249,0.3);
+  border-radius: 99px; padding: 3px 10px;
+  font-size: 10.5px; color: var(--purple); font-weight: 600; margin-bottom: 9px;
+}
+:root[data-theme="alucard"] .demo-cat {
+  background: rgba(139,0,0,0.08); border-color: rgba(139,0,0,0.25); color: var(--red);
+}
+.demo-card {
+  background: rgba(189,147,249,0.08); border: 1px solid rgba(189,147,249,0.22);
+  border-radius: 16px; padding: 22px 14px; text-align: center; margin-bottom: 9px;
+}
+:root[data-theme="alucard"] .demo-card {
+  background: rgba(139,0,0,0.06); border-color: rgba(139,0,0,0.18);
+}
+.demo-q {
+  font-family: 'Cascadia Code','JetBrains Mono','Fira Code',monospace;
+  font-size: 1.55rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em;
+}
+.demo-time { font-size: 10px; color: var(--dim); margin-top: 5px; }
+.demo-ans {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 8px; text-align: center;
+  color: var(--muted); font-family: monospace; font-size: 13px;
+}
+
+/* ─── DIVIDERS & SECTIONS ──────────────────────────────────────── */
+hr { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+h2 {
+  font-family: var(--heading-font);
+  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--comment); margin-bottom: 18px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+:root[data-theme="alucard"] h2 { font-size: 12px; letter-spacing: 0.18em; }
+
+h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; text-wrap: balance; }
+:root[data-theme="alucard"] h3 { font-family: var(--heading-font); }
+
+/* ─── GLANCE GRID ──────────────────────────────────────────────── */
+.glance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 9px; }
+.glance-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px 16px; }
+.glance-label {
+  font-family: 'SF Mono','JetBrains Mono',monospace;
+  font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 4px;
+}
+.glance-value {
+  font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--purple);
+}
+:root[data-theme="alucard"] .glance-value { color: var(--red); }
+.glance-sub { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+/* ─── FILE TREE ─────────────────────────────────────────────────── */
+.filetree {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; overflow-x: auto;
+}
+.filetree-header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 7px 16px; display: flex; align-items: center; gap: 6px;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-r { background: var(--red); } .dot-y { background: var(--yellow); } .dot-g { background: var(--green); }
+:root[data-theme="alucard"] .dot-r { background: #c0392b; }
+:root[data-theme="alucard"] .dot-y { background: #c5942a; }
+:root[data-theme="alucard"] .dot-g { background: #2d7a2d; }
+.filetree pre {
+  font-family: 'Cascadia Code','JetBrains Mono','Fira Code',monospace;
+  font-size: 12px; line-height: 1.85; color: var(--muted);
+  padding: 16px 20px; white-space: pre;
+}
+.ft-dir { color: var(--cyan); }
+:root[data-theme="alucard"] .ft-dir { color: var(--cyan); }
+.ft-key { color: var(--purple); }
+:root[data-theme="alucard"] .ft-key { color: var(--red); }
+.ft-note { color: var(--dim); }
+
+/* ─── CATEGORY CARDS ────────────────────────────────────────────── */
+.sec-label {
+  font-family: 'SF Mono',monospace;
+  font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--dim); margin: 24px 0 9px;
+}
+.sec-label:first-of-type { margin-top: 0; }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px,1fr)); gap: 8px; }
+.cat-card { border-radius: 11px; padding: 10px 11px; border: 1px solid; font-size: 12px; line-height: 1.3; }
+.cat-icon { font-size: 14px; }
+.cat-name { font-weight: 600; display: block; margin-top: 3px; }
+.cat-desc { opacity: 0.62; font-size: 10.5px; margin-top: 2px; display: block; }
+
+/* Dracula colour scheme for cat cards */
+.cc-pur  { background: rgba(189,147,249,.10); border-color: rgba(189,147,249,.25); color: #bd93f9; }
+.cc-pnk  { background: rgba(255,121,198,.10); border-color: rgba(255,121,198,.25); color: #ff79c6; }
+.cc-cyn  { background: rgba(139,233,253,.10); border-color: rgba(139,233,253,.25); color: #8be9fd; }
+.cc-grn  { background: rgba(80,250,123,.10);  border-color: rgba(80,250,123,.25);  color: #50fa7b; }
+.cc-org  { background: rgba(255,184,108,.10); border-color: rgba(255,184,108,.25); color: #ffb86c; }
+.cc-red  { background: rgba(255,85,85,.10);   border-color: rgba(255,85,85,.25);   color: #ff5555; }
+.cc-yel  { background: rgba(241,250,140,.10); border-color: rgba(241,250,140,.25); color: #f1fa8c; }
+
+/* Alucard overrides — same semantic slots, different hues */
+:root[data-theme="alucard"] .cc-pur  { background:rgba(107,45,107,.08); border-color:rgba(107,45,107,.22); color:#6b2d6b; }
+:root[data-theme="alucard"] .cc-pnk  { background:rgba(139,0,0,.07);   border-color:rgba(139,0,0,.2);   color:#8b0000; }
+:root[data-theme="alucard"] .cc-cyn  { background:rgba(45,107,122,.08); border-color:rgba(45,107,122,.22); color:#2d6b7a; }
+:root[data-theme="alucard"] .cc-grn  { background:rgba(45,122,45,.08);  border-color:rgba(45,122,45,.22);  color:#2d7a2d; }
+:root[data-theme="alucard"] .cc-org  { background:rgba(181,96,13,.08);  border-color:rgba(181,96,13,.22);  color:#b5600d; }
+:root[data-theme="alucard"] .cc-red  { background:rgba(139,0,0,.07);    border-color:rgba(139,0,0,.2);    color:#8b0000; }
+:root[data-theme="alucard"] .cc-yel  { background:rgba(181,134,13,.08); border-color:rgba(181,134,13,.22); color:#b5860d; }
+
+/* ─── ALGORITHM ─────────────────────────────────────────────────── */
+.algo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 540px) { .algo-grid { grid-template-columns: 1fr; } }
+
+.algo-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.algo-block h4 {
+  font-family: 'SF Mono',monospace;
+  font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 12px;
+}
+.thresh-row { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.thresh-lbl { font-size: 11.5px; color: var(--muted); flex: 1; min-width: 90px; }
+.thresh-bar { flex: 1; height: 4px; border-radius: 9px; background: var(--surface2); overflow: hidden; }
+.thresh-fill { height: 100%; border-radius: 9px; }
+.thresh-tag {
+  font-family: monospace; font-size: 10px; min-width: 40px; text-align: right;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.w-row { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; }
+.w-badge {
+  font-family: monospace; font-size: 10px; padding: 2px 7px;
+  border-radius: 5px; min-width: 34px; text-align: center; font-variant-numeric: tabular-nums;
+}
+.w-hi  { background: rgba(255,85,85,.15);   color: var(--red); }
+.w-md  { background: rgba(255,184,108,.15); color: var(--orange); }
+.w-lo  { background: rgba(80,250,123,.15);  color: var(--green); }
+:root[data-theme="alucard"] .w-hi  { background:rgba(139,0,0,.1);   color:#8b0000; }
+:root[data-theme="alucard"] .w-md  { background:rgba(181,96,13,.1); color:#b5600d; }
+:root[data-theme="alucard"] .w-lo  { background:rgba(45,122,45,.1); color:#2d7a2d; }
+.w-lbl { font-size: 11.5px; color: var(--muted); }
+
+.formula-box {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 11px; padding: 13px 16px;
+  font-family: 'Cascadia Code','JetBrains Mono',monospace;
+  font-size: 11.5px; line-height: 1.95; overflow-x: auto; margin-top: 10px;
+}
+.fc1 { color: var(--purple); }
+.fc2 { color: var(--pink); }
+.fc3 { color: var(--cyan); }
+.fc4 { color: var(--green); }
+.fcm { color: var(--dim); }
+:root[data-theme="alucard"] .fc1 { color: #6b2d6b; }
+:root[data-theme="alucard"] .fc2 { color: #8b0000; }
+:root[data-theme="alucard"] .fc3 { color: #2d6b7a; }
+:root[data-theme="alucard"] .fc4 { color: #2d7a2d; }
+
+/* ─── MODES ─────────────────────────────────────────────────────── */
+.modes-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+@media (max-width: 520px) { .modes-grid { grid-template-columns: 1fr; } }
+.mode-card { border-radius: 12px; padding: 15px; border: 1px solid; }
+.mode-card .micon { font-size: 20px; margin-bottom: 7px; }
+.mode-card h3 { font-size: 13px; margin-bottom: 5px; }
+.mode-card p  { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+.mc-pur { background:rgba(189,147,249,.08); border-color:rgba(189,147,249,.22); }
+.mc-pnk { background:rgba(255,121,198,.08); border-color:rgba(255,121,198,.22); }
+.mc-slt { background: var(--surface); border-color: var(--border2); }
+:root[data-theme="alucard"] .mc-pur { background:rgba(107,45,107,.07); border-color:rgba(107,45,107,.2); }
+:root[data-theme="alucard"] .mc-pnk { background:rgba(139,0,0,.06);   border-color:rgba(139,0,0,.18); }
+:root[data-theme="alucard"] .mc-slt { background:var(--surface);      border-color:var(--border2); }
+
+/* ─── COLORBLIND SECTION ─────────────────────────────────────────── */
+.cb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap: 10px; }
+.cb-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.cb-header {
+  padding: 10px 14px;
+  font-family: 'SF Mono',monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 700;
+}
+.cb-body { padding: 12px 14px; }
+.cb-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11.5px; color: var(--muted); }
+.cb-row:last-child { margin-bottom: 0; }
+.swatch { width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.1); }
+.cb-label { flex: 1; }
+
+/* Normal */
+.cbh-normal { background: rgba(189,147,249,.12); color: var(--purple); }
+:root[data-theme="alucard"] .cbh-normal { background: rgba(107,45,107,.1); color: #6b2d6b; }
+
+/* Protanopia */
+.cbh-proto { background: rgba(255,184,108,.12); color: var(--orange); }
+:root[data-theme="alucard"] .cbh-proto { background: rgba(181,96,13,.1); color: #b5600d; }
+
+/* Deuteranopia */
+.cbh-deut { background: rgba(139,233,253,.12); color: var(--cyan); }
+:root[data-theme="alucard"] .cbh-deut { background: rgba(45,107,122,.1); color: #2d6b7a; }
+
+/* Tritanopia */
+.cbh-trit { background: rgba(255,121,198,.12); color: var(--pink); }
+:root[data-theme="alucard"] .cbh-trit { background: rgba(139,0,0,.07); color: #8b0000; }
+
+/* Achromatopsia */
+.cbh-mono { background: rgba(180,180,180,.1); color: var(--muted); }
+
+/* ─── MECHANICS GRID ─────────────────────────────────────────────── */
+.mech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+@media (max-width: 520px) { .mech-grid { grid-template-columns: 1fr; } }
+.mech-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 15px 16px; }
+.mech-card h3 { font-size: 13.5px; }
+
+/* ─── PENDING ─────────────────────────────────────────────────────── */
+.pend-card {
+  border-radius: 12px; padding: 16px 18px;
+  border: 1px solid rgba(255,184,108,.28);
+  background: rgba(255,184,108,.05);
+  margin-bottom: 8px;
+}
+.pend-tag {
+  font-family: monospace; font-size: 9.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 2px 8px;
+  border-radius: 5px; display: inline-block; margin-bottom: 8px;
+}
+.pt-def { background: rgba(255,184,108,.15); color: var(--orange); }
+.pt-new { background: rgba(139,233,253,.15); color: var(--cyan); }
+:root[data-theme="alucard"] .pt-def { background:rgba(181,96,13,.12); color:#b5600d; }
+:root[data-theme="alucard"] .pt-new { background:rgba(45,107,122,.1); color:#2d6b7a; }
+:root[data-theme="alucard"] .pend-card { border-color:rgba(181,96,13,.28); background:rgba(181,96,13,.04); }
+
+.pend-dots { list-style: none; margin-top: 9px; padding: 0; }
+.pend-dots li {
+  display: flex; gap: 7px; font-size: 12px; color: var(--muted); margin-bottom: 5px; line-height: 1.4;
+}
+.pend-dots li::before { content: '›'; color: var(--comment); flex-shrink: 0; }
+.pend-dots code {
+  font-family: 'Cascadia Code','JetBrains Mono',monospace;
+  font-size: 10.5px; background: var(--surface2);
+  padding: 0 4px; border-radius: 4px;
+}
+
+/* ─── RUN BOX ─────────────────────────────────────────────────────── */
+.run-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.run-hdr {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 7px 16px;
+  font-family: monospace; font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--dim);
+  display: flex; align-items: center; gap: 8px;
+}
+.run-box pre {
+  font-family: 'Cascadia Code','JetBrains Mono',monospace;
+  font-size: 13px; line-height: 1.85; padding: 14px 18px;
+  overflow-x: auto; color: var(--muted);
+}
+.r-cmd { color: var(--green); }
+:root[data-theme="alucard"] .r-cmd { color: #2d7a2d; }
+.r-cmt { color: var(--dim); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────── */
+footer {
+  margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+footer a { font-family: monospace; font-size: 11px; color: var(--purple); text-decoration: none; }
+:root[data-theme="alucard"] footer a { color: var(--red); }
+footer a:hover { text-decoration: underline; }
+.footer-meta { font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+p { color: var(--muted); font-size: 13.5px; margin-bottom: 8px; }
+p:last-child { margin-bottom: 0; }
+
+/* Alucard gothic accents */
+:root[data-theme="alucard"] .hero::before {
+  content: '⚜';
+  position: absolute;
+  font-size: 80px;
+  color: rgba(139,0,0,0.04);
+  right: 0; top: 56px;
+  pointer-events: none;
+  select: none;
+}
+.hero { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<!-- ───────────────────── JAVASCRIPT ───────────────────────────── -->
+<script>
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll('[data-theme-btn]').forEach(b => b.classList.toggle('active', b.dataset.themeBtn === t));
+  localStorage.setItem('mb-theme', t);
+}
+function setLang(l) {
+  document.body.dataset.lang = l;
+  document.querySelectorAll('[data-lang-btn]').forEach(b => b.classList.toggle('active', b.dataset.langBtn === l));
+  localStorage.setItem('mb-lang', l);
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const t = localStorage.getItem('mb-theme') || 'dracula';
+  const l = localStorage.getItem('mb-lang') || 'es';
+  setTheme(t); setLang(l);
+});
+</script>
+
+<!-- ─── NAV ─────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">🧠 MathBrain</div>
+  <div class="nav-controls">
+    <div class="toggle-group">
+      <button class="toggle-btn" data-lang-btn="es" onclick="setLang('es')">🇪🇸 ES</button>
+      <button class="toggle-btn" data-lang-btn="en" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+    <div class="toggle-group">
+      <button class="toggle-btn active" data-theme-btn="dracula" onclick="setTheme('dracula')">🧛 Dracula</button>
+      <button class="toggle-btn" data-theme-btn="alucard" onclick="setTheme('alucard')">🌟 Alucard</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrapper">
+
+<!-- ─── HERO ─────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div>
+    <div class="eyebrow es">Resumen del Proyecto · Julio 2025</div>
+    <div class="eyebrow en">Project Summary · July 2025</div>
+    <h1>Math<wbr>Brain</h1>
+    <p class="hero-desc es">Entrenamiento matemático adaptativo en el navegador. Sin backend. Sin servidor. Puro algoritmo.</p>
+    <p class="hero-desc en">Adaptive maths training, fully in the browser. No backend. No server. Pure algorithm.</p>
+    <div class="stack-pills">
+      <span class="pill">React 19</span><span class="pill">TypeScript</span>
+      <span class="pill">Vite 8</span><span class="pill">Tailwind v4</span>
+      <span class="pill">localStorage</span>
+    </div>
+  </div>
+  <div class="problem-demo" aria-hidden="true">
+    <div class="demo-timer"><div class="demo-timer-fill"></div></div>
+    <div class="demo-cat">🖩 <span class="es">Computación</span><span class="en">Computing</span></div>
+    <div class="demo-card">
+      <div class="demo-q">1011₂ = ?</div>
+      <div class="demo-time">8.4s</div>
+    </div>
+    <div class="demo-ans">11</div>
+  </div>
+</header>
+
+<hr>
+
+<!-- ─── AT A GLANCE ───────────────────────────────────────────────── -->
+<h2><span class="es">De un vistazo</span><span class="en">At a Glance</span></h2>
+<div class="glance-grid">
+  <div class="glance-item">
+    <div class="glance-label"><span class="es">Categorías</span><span class="en">Categories</span></div>
+    <div class="glance-value">27</div>
+    <div class="glance-sub"><span class="es">6 secciones temáticas</span><span class="en">6 thematic sections</span></div>
+  </div>
+  <div class="glance-item">
+    <div class="glance-label"><span class="es">Niveles</span><span class="en">Levels</span></div>
+    <div class="glance-value">4</div>
+    <div class="glance-sub"><span class="es">Básico → Experto</span><span class="en">Basic → Expert</span></div>
+  </div>
+  <div class="glance-item">
+    <div class="glance-label"><span class="es">Modos</span><span class="en">Modes</span></div>
+    <div class="glance-value">3</div>
+    <div class="glance-sub"><span class="es">Libre · Consciencia · Individual</span><span class="en">Free · Focused · Single</span></div>
+  </div>
+  <div class="glance-item">
+    <div class="glance-label"><span class="es">Perfiles</span><span class="en">Profiles</span></div>
+    <div class="glance-value">∞</div>
+    <div class="glance-sub"><span class="es">Multi-usuario, export/import JSON</span><span class="en">Multi-user, export/import JSON</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ─── ARCHITECTURE ──────────────────────────────────────────────── -->
+<h2><span class="es">Arquitectura</span><span class="en">Architecture</span></h2>
+<div class="filetree">
+  <div class="filetree-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+  <pre><span class="ft-dir">src/</span>
+  <span class="ft-dir">components/</span>
+    <span class="ft-key">App.tsx</span>           <span class="ft-note es">— navegación global, pantallas</span><span class="ft-note en">— global navigation, screens</span>
+    <span class="ft-key">Game.tsx</span>          <span class="ft-note es">— motor del juego, timer, prompt de distracción</span><span class="ft-note en">— game engine, timer, distraction prompt</span>
+    <span class="ft-key">Menu.tsx</span>          <span class="ft-note es">— pestañas Libre/Consciencia, recomendaciones</span><span class="ft-note en">— Free/Focused tabs, smart recommendations</span>
+    <span class="ft-key">Stats.tsx</span>         <span class="ft-note es">— gráfica de actividad, racha, historial 90d</span><span class="ft-note en">— activity chart, streak, 90-day history</span>
+    <span class="ft-key">VisualDisplay.tsx</span> <span class="ft-note es">— cuadrículas emoji, barra de fracción, reloj</span><span class="ft-note en">— emoji grids, fraction bar, clock SVG</span>
+    <span class="ft-key">Abacus.tsx</span>        <span class="ft-note es">— ábaco interactivo de apoyo</span><span class="ft-note en">— interactive abacus support tool</span>
+  <span class="ft-dir">engine/</span>
+    <span class="ft-key">adaptive.ts</span>       <span class="ft-note es">— sweet-spot, pesos, recomendaciones, penalizaciones</span><span class="ft-note en">— sweet-spot, weights, recommendations, neglect</span>
+    <span class="ft-key">problems.ts</span>       <span class="ft-note es">— 27 generadores × 4 niveles + mkq() helper</span><span class="ft-note en">— 27 generators × 4 levels + mkq() helper</span>
+    <span class="ft-key">storage.ts</span>        <span class="ft-note es">— localStorage, perfiles, historial de sesiones</span><span class="ft-note en">— localStorage, profiles, session history</span>
+    <span class="ft-key">meta.ts</span>           <span class="ft-note es">— etiquetas, íconos, colores, secciones</span><span class="ft-note en">— labels, icons, colours, sections</span>
+  <span class="ft-key">types/index.ts</span>      <span class="ft-note es">— CategoryId, UserProfile, Problem…</span><span class="ft-note en">— CategoryId, UserProfile, Problem…</span>
+  <span class="ft-key">i18n.ts</span>             <span class="ft-note">— Español / English</span></pre>
+</div>
+
+<hr>
+
+<!-- ─── CATEGORIES ────────────────────────────────────────────────── -->
+<h2><span class="es">27 Categorías</span><span class="en">27 Categories</span></h2>
+
+<div class="sec-label"><span class="es">Aritmética</span><span class="en">Arithmetic</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-pur"><span class="cat-icon">➕</span><span class="cat-name es">Suma</span><span class="cat-name en">Addition</span><span class="cat-desc es">Carry, sumas largas, mental</span><span class="cat-desc en">Carry, long addition, mental</span></div>
+  <div class="cat-card cc-pur"><span class="cat-icon">➖</span><span class="cat-name es">Resta</span><span class="cat-name en">Subtraction</span><span class="cat-desc es">Borrow, complementarios</span><span class="cat-desc en">Borrowing, complements</span></div>
+  <div class="cat-card cc-pur"><span class="cat-icon">✖️</span><span class="cat-name es">Multiplicación</span><span class="cat-name en">Multiplication</span><span class="cat-desc es">Tablas, multi-dígito</span><span class="cat-desc en">Times tables, multi-digit</span></div>
+  <div class="cat-card cc-pur"><span class="cat-icon">➗</span><span class="cat-name es">División</span><span class="cat-name en">Division</span><span class="cat-desc es">Exacta, larga, resto</span><span class="cat-desc en">Exact, long, remainder</span></div>
+</div>
+
+<div class="sec-label"><span class="es">Números</span><span class="en">Numbers</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-pnk"><span class="cat-icon">%</span><span class="cat-name es">Porcentaje</span><span class="cat-name en">Percentage</span><span class="cat-desc es">Descuentos, IVA, variación</span><span class="cat-desc en">Discounts, VAT, change</span></div>
+  <div class="cat-card cc-pnk"><span class="cat-icon">½</span><span class="cat-name es">Fracciones</span><span class="cat-name en">Fractions</span><span class="cat-desc es">+−×÷ fracciones, mixtos</span><span class="cat-desc en">+−×÷ fractions, mixed</span></div>
+  <div class="cat-card cc-cyn"><span class="cat-icon">0.1</span><span class="cat-name es">Decimales</span><span class="cat-name en">Decimals</span><span class="cat-desc es">Valor posicional, ops</span><span class="cat-desc en">Place value, operations</span></div>
+  <div class="cat-card cc-red"><span class="cat-icon">±</span><span class="cat-name es">Negativos</span><span class="cat-name en">Negatives</span><span class="cat-desc es">Recta, reglas de signos</span><span class="cat-desc en">Number line, sign rules</span></div>
+  <div class="cat-card cc-pnk"><span class="cat-icon">x²</span><span class="cat-name es">Potencias</span><span class="cat-name en">Powers</span><span class="cat-desc es">Cuadrados, leyes de exp.</span><span class="cat-desc en">Squares, exponent laws</span></div>
+  <div class="cat-card cc-pnk"><span class="cat-icon">√</span><span class="cat-name es">Raíz cuadrada</span><span class="cat-name en">Square Root</span><span class="cat-desc es">Exactas e inexactas</span><span class="cat-desc en">Exact and approximate</span></div>
+</div>
+
+<div class="sec-label"><span class="es">Álgebra & Análisis</span><span class="en">Algebra & Analysis</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-grn"><span class="cat-icon">x</span><span class="cat-name es">Álgebra</span><span class="cat-name en">Algebra</span><span class="cat-desc es">Ecuaciones, sistemas</span><span class="cat-desc en">Equations, systems</span></div>
+  <div class="cat-card cc-grn"><span class="cat-icon">∝</span><span class="cat-name es">Proporcionalidad</span><span class="cat-name en">Proportionality</span><span class="cat-desc es">Regla de tres, escala</span><span class="cat-desc en">Rule of three, scale</span></div>
+  <div class="cat-card cc-grn"><span class="cat-icon">📐</span><span class="cat-name es">Geometría</span><span class="cat-name en">Geometry</span><span class="cat-desc es">Áreas, ángulos, Pitágoras</span><span class="cat-desc en">Areas, angles, Pythagoras</span></div>
+  <div class="cat-card cc-grn"><span class="cat-icon">sin</span><span class="cat-name es">Trigonometría</span><span class="cat-name en">Trigonometry</span><span class="cat-desc es">sin/cos/tan, leyes</span><span class="cat-desc en">sin/cos/tan, laws</span></div>
+  <div class="cat-card cc-grn"><span class="cat-icon">㏒</span><span class="cat-name es">Logaritmos</span><span class="cat-name en">Logarithms</span><span class="cat-desc es">log₁₀, ln, propiedades</span><span class="cat-desc en">log₁₀, ln, properties</span></div>
+  <div class="cat-card cc-grn"><span class="cat-icon">∑</span><span class="cat-name es">Sucesiones</span><span class="cat-name en">Sequences</span><span class="cat-desc es">Aritmética, geométrica</span><span class="cat-desc en">Arithmetic, geometric</span></div>
+</div>
+
+<div class="sec-label"><span class="es">Teoría & Mental</span><span class="en">Theory & Mental</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-org"><span class="cat-icon">🔢</span><span class="cat-name es">Teoría de Números</span><span class="cat-name en">Number Theory</span><span class="cat-desc es">Primos, MCD/MCM, romano</span><span class="cat-desc en">Primes, GCD/LCM, Roman</span></div>
+  <div class="cat-card cc-org"><span class="cat-icon">🧠</span><span class="cat-name es">Mente Védica</span><span class="cat-name en">Vedic Mental</span><span class="cat-desc es">Trucos de cálculo mental</span><span class="cat-desc en">Mental calculation tricks</span></div>
+</div>
+
+<div class="sec-label"><span class="es">Uso Cotidiano</span><span class="en">Everyday Use</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-cyn"><span class="cat-icon">🕐</span><span class="cat-name es">Reloj</span><span class="cat-name en">Clock Time</span><span class="cat-desc es">12/24h, zonas horarias</span><span class="cat-desc en">12/24h, time zones</span></div>
+  <div class="cat-card cc-cyn"><span class="cat-icon">📅</span><span class="cat-name es">Calendario</span><span class="cat-name en">Calendar</span><span class="cat-desc es">Días entre fechas</span><span class="cat-desc en">Days between dates</span></div>
+  <div class="cat-card cc-cyn"><span class="cat-icon">💰</span><span class="cat-name es">Dinero & Propinas</span><span class="cat-name en">Money & Tips</span><span class="cat-desc es">10–20% tip, cuenta dividida</span><span class="cat-desc en">10–20% tip, split bills</span></div>
+  <div class="cat-card cc-cyn"><span class="cat-icon">📈</span><span class="cat-name es">Finanzas</span><span class="cat-name en">Finance</span><span class="cat-desc es">Interés, ROI, amortización</span><span class="cat-desc en">Interest, ROI, amortisation</span></div>
+  <div class="cat-card cc-cyn"><span class="cat-icon">📏</span><span class="cat-name es">Medidas</span><span class="cat-name en">Measurements</span><span class="cat-desc es">Métrico, imperial, °C↔°F</span><span class="cat-desc en">Metric, imperial, °C↔°F</span></div>
+</div>
+
+<div class="sec-label"><span class="es">Ciencia & Tecnología</span><span class="en">Science & Technology</span></div>
+<div class="cat-grid">
+  <div class="cat-card cc-yel"><span class="cat-icon">📊</span><span class="cat-name es">Estadística</span><span class="cat-name en">Statistics</span><span class="cat-desc es">Media, moda, probabilidad</span><span class="cat-desc en">Mean, mode, probability</span></div>
+  <div class="cat-card cc-yel"><span class="cat-icon">⚗️</span><span class="cat-name es">Química</span><span class="cat-name en">Chemistry</span><span class="cat-desc es">Mol, masa molar, estequiometría</span><span class="cat-desc en">Mol, molar mass, stoichiometry</span></div>
+  <div class="cat-card cc-yel"><span class="cat-icon">🚀</span><span class="cat-name es">Física</span><span class="cat-name en">Physics</span><span class="cat-desc es">Cinemática, F=ma, Kepler</span><span class="cat-desc en">Kinematics, F=ma, Kepler</span></div>
+  <div class="cat-card cc-yel"><span class="cat-icon">🖩</span><span class="cat-name es">Computación</span><span class="cat-name en">Computing</span><span class="cat-desc es">Binario, hex, ASCII, bit ops</span><span class="cat-desc en">Binary, hex, ASCII, bit ops</span></div>
+</div>
+
+<hr>
+
+<!-- ─── ALGORITHM ─────────────────────────────────────────────────── -->
+<h2><span class="es">Motor Adaptativo</span><span class="en">Adaptive Engine</span></h2>
+
+<div class="algo-grid">
+  <div class="algo-block">
+    <h4><span class="es">Avance de nivel</span><span class="en">Level advancement</span></h4>
+    <div class="thresh-row">
+      <span class="thresh-lbl">≥92% <span class="es">en 5</span><span class="en">in 5</span></span>
+      <div class="thresh-bar"><div class="thresh-fill" style="width:92%;background:#50fa7b"></div></div>
+      <span class="thresh-tag"><span class="es">rápido</span><span class="en">fast</span></span>
+    </div>
+    <div class="thresh-row">
+      <span class="thresh-lbl">≥84% <span class="es">en 8</span><span class="en">in 8</span></span>
+      <div class="thresh-bar"><div class="thresh-fill" style="width:84%;background:#8be9fd"></div></div>
+      <span class="thresh-tag"><span class="es">normal</span><span class="en">normal</span></span>
+    </div>
+    <div class="thresh-row">
+      <span class="thresh-lbl">≥77% <span class="es">en 15</span><span class="en">in 15</span></span>
+      <div class="thresh-bar"><div class="thresh-fill" style="width:77%;background:#bd93f9"></div></div>
+      <span class="thresh-tag">sweet ✓</span>
+    </div>
+    <div class="thresh-row">
+      <span class="thresh-lbl">&lt;35% <span class="es">en 5</span><span class="en">in 5</span></span>
+      <div class="thresh-bar"><div class="thresh-fill" style="width:35%;background:#ff5555"></div></div>
+      <span class="thresh-tag"><span class="es">baja</span><span class="en">drops</span></span>
+    </div>
+  </div>
+  <div class="algo-block">
+    <h4><span class="es">Pesos por precisión reciente</span><span class="en">Weights by recent accuracy</span></h4>
+    <div class="w-row"><span class="w-badge w-hi">3.5×</span><span class="w-lbl">acc &lt; 40% — <span class="es">batallando</span><span class="en">struggling</span></span></div>
+    <div class="w-row"><span class="w-badge w-hi">2.5×</span><span class="w-lbl">acc &lt; 55%</span></div>
+    <div class="w-row"><span class="w-badge w-md">1.8×</span><span class="w-lbl">acc &lt; 65%</span></div>
+    <div class="w-row"><span class="w-badge w-lo">1.0×</span><span class="w-lbl">65–82% — sweet spot</span></div>
+    <div class="w-row"><span class="w-badge w-lo">0.8×</span><span class="w-lbl">acc &gt; 82%</span></div>
+    <div class="w-row"><span class="w-badge w-lo">0.65×</span><span class="w-lbl">acc &gt; 92% — <span class="es">dominada</span><span class="en">mastered</span></span></div>
+  </div>
+</div>
+
+<div class="formula-box" style="margin-top:10px">
+<span class="fc1">score</span> = <span class="fc2">neglect</span>  × <span class="fc4">0.35</span>  <span class="fcm es">— días sin practicar / 7 (máx 1)</span><span class="fcm en">— days without practice / 7 (cap 1)</span>
+        + <span class="fc2">struggle</span> × <span class="fc4">0.40</span>  <span class="fcm es">— cuánto por debajo del 70%</span><span class="fcm en">— how far below 70% accuracy</span>
+        + <span class="fc3">new</span>      × <span class="fc4">0.20</span>  <span class="fcm es">— nunca practicada</span><span class="fcm en">— never practised</span>
+        + <span class="fc3">sweetspot</span>× <span class="fc4">0.05</span>  <span class="fcm es">— actualmente en zona óptima</span><span class="fcm en">— currently in optimal zone</span></div>
+
+<hr>
+
+<!-- ─── PRACTICE MODES ────────────────────────────────────────────── -->
+<h2><span class="es">Modos de Práctica</span><span class="en">Practice Modes</span></h2>
+<div class="modes-grid">
+  <div class="mode-card mc-pur">
+    <div class="micon">🎲</div>
+    <h3><span class="es">Práctica Libre</span><span class="en">Free Practice</span></h3>
+    <p class="es">La app elige categorías y niveles. Panel de recomendaciones con ⏰💪✨. Sin selector de nivel.</p>
+    <p class="en">The app picks categories and levels. Recommendation panel with ⏰💪✨. No level selector shown.</p>
+  </div>
+  <div class="mode-card mc-pnk">
+    <div class="micon">🎯</div>
+    <h3><span class="es">A Consciencia</span><span class="en">Focused</span></h3>
+    <p class="es">Seleccionas categorías o secciones enteras. El algoritmo adapta el nivel dentro de tu selección.</p>
+    <p class="en">You pick categories or whole sections. The algorithm still adapts the level within your selection.</p>
+  </div>
+  <div class="mode-card mc-slt">
+    <div class="micon">📚</div>
+    <h3><span class="es">Individual</span><span class="en">Single Category</span></h3>
+    <p class="es">Click directo en una categoría. Selector de nivel manual visible.</p>
+    <p class="en">Click directly on a category. Manual level selector visible.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ─── USER MECHANICS ─────────────────────────────────────────────── -->
+<h2><span class="es">Mecánicas de Usuario</span><span class="en">User Mechanics</span></h2>
+<div class="mech-grid">
+  <div class="mech-card">
+    <h3>🔥 <span class="es">Racha diaria</span><span class="en">Daily streak</span></h3>
+    <p class="es">Días consecutivos practicando. Récord personal guardado en perfil.</p>
+    <p class="en">Consecutive days of practice. Personal best saved in profile.</p>
+  </div>
+  <div class="mech-card">
+    <h3>😴 <span class="es">Prompt de distracción</span><span class="en">Distraction prompt</span></h3>
+    <p class="es">Tiempo expirado sin respuesta → ¿Estabas distraído? <kbd>A</kbd> = no cuenta / <kbd>N</kbd> = cuenta como error.</p>
+    <p class="en">Time up with no answer → Were you distracted? <kbd>A</kbd> = skip / <kbd>N</kbd> = count as wrong.</p>
+  </div>
+  <div class="mech-card">
+    <h3>⏳ <span class="es">Penalización por abandono</span><span class="en">Neglect penalty</span></h3>
+    <p class="es">Sin practicar ≥5 días con nivel >1 → baja un nivel al abrir la app.</p>
+    <p class="en">No practice for ≥5 days at level >1 → drops one level on app open.</p>
+  </div>
+  <div class="mech-card">
+    <h3>⏱️ <span class="es">Tiempo adaptativo</span><span class="en">Adaptive time limit</span></h3>
+    <p class="es">acc >90% → 50% del tiempo base. acc &lt;40% → 140%. Más dominio, más presión.</p>
+    <p class="en">acc >90% → 50% of base time. acc &lt;40% → 140%. More mastery, more pressure.</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ─── COLORBLIND PALETTES ─────────────────────────────────────────── -->
+<h2><span class="es">Paletas para Daltonismo</span><span class="en">Colour-Blind Palettes</span></h2>
+<p class="es" style="margin-bottom:16px">La app incluye un modo daltónico en ajustes. La siguiente tabla muestra cómo se adaptan los colores de señalización (correcto / incorrecto / alerta / neutro) para cada tipo de visión.</p>
+<p class="en" style="margin-bottom:16px">The app includes a colour-blind mode in settings. The table below shows how the four signal colours (correct / wrong / warning / neutral) adapt for each vision type.</p>
+
+<div class="cb-grid">
+  <!-- Normal -->
+  <div class="cb-card">
+    <div class="cb-header cbh-normal"><span class="es">Visión normal</span><span class="en">Normal vision</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#10b981"></div><span class="cb-label">Emerald <span class="es">— Correcto</span><span class="en">— Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#f43f5e"></div><span class="cb-label">Rose <span class="es">— Incorrecto</span><span class="en">— Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#f59e0b"></div><span class="cb-label">Amber <span class="es">— Alerta</span><span class="en">— Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#7c3aed"></div><span class="cb-label">Violet <span class="es">— Categoría</span><span class="en">— Category</span></span></div>
+    </div>
+  </div>
+
+  <!-- App colorblind mode -->
+  <div class="cb-card">
+    <div class="cb-header cbh-normal" style="opacity:.85"><span class="es">Modo daltónico (app)</span><span class="en">App colorblind mode</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#0ea5e9"></div><span class="cb-label">Sky <span class="es">— Correcto</span><span class="en">— Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#f59e0b"></div><span class="cb-label">Amber <span class="es">— Incorrecto</span><span class="en">— Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#e879f9"></div><span class="cb-label">Fuchsia <span class="es">— Alerta</span><span class="en">— Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#7c3aed"></div><span class="cb-label">Violet <span class="es">— Categoría</span><span class="en">— Category</span></span></div>
+    </div>
+  </div>
+
+  <!-- Protanopia -->
+  <div class="cb-card">
+    <div class="cb-header cbh-proto"><span class="es">Protanopía</span><span class="en">Protanopia</span> <span style="font-weight:400;opacity:.7;font-size:9px">(<span class="es">sin rojo</span><span class="en">no red</span>)</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#0ea5e9"></div><span class="cb-label">Sky <span class="es">— Correcto</span><span class="en">— Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#ea6900"></div><span class="cb-label">Orange <span class="es">— Incorrecto</span><span class="en">— Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#f59e0b"></div><span class="cb-label">Amber <span class="es">— Alerta</span><span class="en">— Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#4f46e5"></div><span class="cb-label">Indigo <span class="es">— Categoría</span><span class="en">— Category</span></span></div>
+    </div>
+  </div>
+
+  <!-- Deuteranopia -->
+  <div class="cb-card">
+    <div class="cb-header cbh-deut"><span class="es">Deuteranopía</span><span class="en">Deuteranopia</span> <span style="font-weight:400;opacity:.7;font-size:9px">(<span class="es">sin verde</span><span class="en">no green</span>)</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#0284c7"></div><span class="cb-label">Blue <span class="es">— Correcto</span><span class="en">— Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#ea6900"></div><span class="cb-label">Orange <span class="es">— Incorrecto</span><span class="en">— Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#d97706"></div><span class="cb-label">Warm amber <span class="es">— Alerta</span><span class="en">— Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#4f46e5"></div><span class="cb-label">Indigo <span class="es">— Categoría</span><span class="en">— Category</span></span></div>
+    </div>
+  </div>
+
+  <!-- Tritanopia -->
+  <div class="cb-card">
+    <div class="cb-header cbh-trit"><span class="es">Tritanopía</span><span class="en">Tritanopia</span> <span style="font-weight:400;opacity:.7;font-size:9px">(<span class="es">sin azul</span><span class="en">no blue</span>)</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#10b981"></div><span class="cb-label">Emerald <span class="es">— Correcto</span><span class="en">— Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#e11d48"></div><span class="cb-label">Rose <span class="es">— Incorrecto</span><span class="en">— Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#dc2626"></div><span class="cb-label">Red <span class="es">— Alerta</span><span class="en">— Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#7e22ce"></div><span class="cb-label">Purple <span class="es">— Categoría</span><span class="en">— Category</span></span></div>
+    </div>
+  </div>
+
+  <!-- Monochromacy -->
+  <div class="cb-card">
+    <div class="cb-header cbh-mono"><span class="es">Acromatopsia</span><span class="en">Achromatopsia</span> <span style="font-weight:400;opacity:.7;font-size:9px">(<span class="es">escala de grises</span><span class="en">greyscale</span>)</span></div>
+    <div class="cb-body">
+      <div class="cb-row"><div class="swatch" style="background:#d1d5db;border-color:#9ca3af"></div><span class="cb-label"><span class="es">Claro — Correcto</span><span class="en">Light — Correct</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#4b5563"></div><span class="cb-label"><span class="es">Medio — Incorrecto</span><span class="en">Mid — Wrong</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#9ca3af"></div><span class="cb-label"><span class="es">Gris — Alerta</span><span class="en">Grey — Warning</span></span></div>
+      <div class="cb-row"><div class="swatch" style="background:#111827"></div><span class="cb-label"><span class="es">Oscuro — Categoría</span><span class="en">Dark — Category</span></span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ─── PENDING ───────────────────────────────────────────────────── -->
+<h2><span class="es">Features Pendientes</span><span class="en">Pending Features</span></h2>
+
+<div class="pend-card">
+  <span class="pend-tag pt-def"><span class="es">Diferida a otra IA</span><span class="en">Deferred to another AI</span></span>
+  <h3><span class="es">Explicaciones paso a paso</span><span class="en">Step-by-step explanations</span></h3>
+  <p class="es">Ventana animada al fallar una respuesta, con la resolución del problema paso a paso.</p>
+  <p class="en">Animated window on wrong answer showing the problem solution step by step.</p>
+  <ul class="pend-dots">
+    <li><span class="es">Añadir <code>steps?: string[]</code> y <code>explainVisual?: ExplainVisual</code> al tipo <code>Problem</code></span><span class="en">Add <code>steps?: string[]</code> and <code>explainVisual?: ExplainVisual</code> to the <code>Problem</code> type</span></li>
+    <li><span class="es">Tipos visuales: <code>bar</code>, <code>fraction</code>, <code>dotgrid</code>, <code>numberline</code>, <code>split</code></span><span class="en">Visual types: <code>bar</code>, <code>fraction</code>, <code>dotgrid</code>, <code>numberline</code>, <code>split</code></span></li>
+    <li><span class="es">Componente <code>ExplainPanel.tsx</code>: modal slide-up con pasos apareciendo uno a uno</span><span class="en">Component <code>ExplainPanel.tsx</code>: slide-up modal with steps appearing one by one</span></li>
+    <li><span class="es">Respuestas incorrectas no auto-avanzan — esperan "Continuar →"</span><span class="en">Wrong answers don't auto-advance — wait for "Continue →"</span></li>
+  </ul>
+</div>
+
+<div class="pend-card">
+  <span class="pend-tag pt-new"><span class="es">Por implementar</span><span class="en">To implement</span></span>
+  <h3><span class="es">Etiquetas de maestría estilo Khan Academy</span><span class="en">Khan Academy–style mastery labels</span></h3>
+  <p class="es">Reemplazar niveles numéricos (1/2/3/4) en modo Individual con: <em>Necesita Práctica → Familiar → Competente → Dominado</em>.</p>
+  <p class="en">Replace numeric levels (1/2/3/4) in Single mode with: <em>Needs Practice → Familiar → Proficient → Mastered</em>.</p>
+</div>
+
+<hr>
+
+<!-- ─── HOW TO RUN ─────────────────────────────────────────────────── -->
+<h2><span class="es">Cómo Iniciarlo</span><span class="en">How to Run It</span></h2>
+<div class="run-box">
+  <div class="run-hdr"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+  <pre>
+<span class="r-cmt es"># Clonar el repositorio</span><span class="r-cmt en"># Clone the repository</span>
+<span class="r-cmd">git clone</span> https://github.com/ArchBlackKitten/MathBrain
+<span class="r-cmd">cd</span> MathBrain
+
+<span class="r-cmt es"># Instalar dependencias (sólo la primera vez)</span><span class="r-cmt en"># Install dependencies (first time only)</span>
+<span class="r-cmd">npm install</span>
+
+<span class="r-cmt es"># Iniciar servidor de desarrollo → localhost:5173</span><span class="r-cmt en"># Start dev server → localhost:5173</span>
+<span class="r-cmd">npm run dev</span>
+
+<span class="r-cmt es"># Build de producción</span><span class="r-cmt en"># Production build</span>
+<span class="r-cmd">npm run build</span></pre>
+</div>
+
+<footer>
+  <a href="https://github.com/ArchBlackKitten/MathBrain" target="_blank" rel="noopener">github.com/ArchBlackKitten/MathBrain</a>
+  <span class="footer-meta">React 19 · TypeScript · <span class="es">sin backend</span><span class="en">no backend</span> · julio 2025</span>
+</footer>
+
+</div>
