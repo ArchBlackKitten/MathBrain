@@ -10,6 +10,7 @@ interface Props {
   settings: AppSettings;
   onPlaySingle:    (cat: CategoryId) => void;
   onPlayMulti:     (cats: CategoryId[]) => void;
+  onPlayRelax:     (cats: CategoryId[]) => void;
   onStats:         () => void;
   onSettings:      () => void;
   onProfiles:      () => void;
@@ -18,14 +19,14 @@ interface Props {
 
 export default function Menu({
   profile, settings,
-  onPlaySingle, onPlayMulti, onStats, onSettings, onProfiles, onProfileUpdate,
+  onPlaySingle, onPlayMulti, onPlayRelax, onStats, onSettings, onProfiles, onProfileUpdate,
 }: Props) {
   const t    = useT(settings.language);
   const lang = settings.language;
   const importRef = useRef<HTMLInputElement>(null);
 
-  // 'free' = app decides, 'focused' = user picks categories
-  const [practiceTab, setPracticeTab] = useState<'free' | 'focused'>('free');
+  // 'free' = app decides, 'focused' = user picks categories, 'relax' = no timer
+  const [practiceTab, setPracticeTab] = useState<'free' | 'focused' | 'relax'>('free');
   const [selected, setSelected] = useState<CategoryId[]>(() => {
     const saved = loadTrainingSelection(profile.id);
     if (saved) {
@@ -71,6 +72,9 @@ export default function Menu({
   const priorities = getCategoryPriorities(profile);
   const recommended = new Set(priorities.slice(0, 6).map(p => p.id));
   const urgentCount = priorities.filter(p => p.score > 0.5).length;
+
+  // Both focused and relax let the user pick categories via the grid
+  const selecting = practiceTab === 'focused' || practiceTab === 'relax';
 
   const xpInLevel = profile.xp % 100;
   const now = Date.now();
@@ -139,6 +143,22 @@ export default function Menu({
               {lang === 'es' ? 'Tú eliges' : 'You choose'}
             </span>
           </button>
+          <button
+            onClick={() => setPracticeTab('relax')}
+            className={`flex-1 flex flex-col items-center py-3 px-2 rounded-xl transition-all ${
+              practiceTab === 'relax'
+                ? 'bg-teal-600 shadow-lg shadow-teal-900/50'
+                : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-lg mb-0.5">🧘</span>
+            <span className={`text-xs font-bold ${practiceTab === 'relax' ? 'text-white' : 'text-slate-400'}`}>
+              {lang === 'es' ? 'Relax' : 'Relax'}
+            </span>
+            <span className={`text-[10px] mt-0.5 ${practiceTab === 'relax' ? 'text-teal-200' : 'text-slate-600'}`}>
+              {lang === 'es' ? 'Sin tiempo' : 'No timer'}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -189,11 +209,22 @@ export default function Menu({
         </div>
       )}
 
+      {/* === RELAX PRACTICE === */}
+      {practiceTab === 'relax' && (
+        <div className="px-4 mb-6">
+          <p className="text-xs text-slate-500 mb-4 text-center">
+            {lang === 'es'
+              ? '🧘 Sin cronómetro, sin puntaje. Tómate el tiempo que quieras, salta lo que sea. Elige categorías y practica tranquila.'
+              : '🧘 No timer, no scoring. Take all the time you want, skip anything. Pick categories and practise calmly.'}
+          </p>
+        </div>
+      )}
+
       {/* Category sections — shown in both modes (clickable for single in free, selectable in focused) */}
       <div className="px-4 space-y-5 mb-6">
         {CATEGORY_SECTIONS.map(section => {
           const sectionLabel = lang === 'es' ? section.label : section.labelEn;
-          const allSectionSelected = practiceTab === 'focused' && section.categories.every(id => selected.includes(id));
+          const allSectionSelected = selecting && section.categories.every(id => selected.includes(id));
 
           return (
             <div key={section.id}>
@@ -201,7 +232,7 @@ export default function Menu({
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                   {sectionLabel}
                 </h3>
-                {practiceTab === 'focused' && (
+                {selecting && (
                   <button
                     onClick={() => toggleSection(section.categories)}
                     className={`text-xs px-2 py-0.5 rounded-full border transition ${
@@ -226,20 +257,20 @@ export default function Menu({
                   const isRecommended = recommended.has(id);
                   const levelLabels  = lang === 'es' ? ['','Básico','Interm.','Avanzado','Experto'] : ['','Basic','Inter.','Advanced','Expert'];
 
-                  const dimmed = practiceTab === 'focused' && !isSelected;
+                  const dimmed = selecting && !isSelected;
 
                   return (
                     <button
                       key={id}
-                      onClick={() => practiceTab === 'focused' ? toggle(id) : onPlaySingle(id)}
+                      onClick={() => selecting ? toggle(id) : onPlaySingle(id)}
                       className={`${c.bg} border ${
                         dimmed ? 'opacity-30 border-white/8'
                           : isNeglected ? 'border-amber-500/50'
                           : c.border
                       } rounded-2xl p-3 text-left transition-all active:scale-95 relative`}
                     >
-                      {/* Checkbox in focused mode */}
-                      {practiceTab === 'focused' && (
+                      {/* Checkbox in focused/relax modes */}
+                      {selecting && (
                         <div className={`absolute top-2 right-2 w-4 h-4 rounded border flex items-center justify-center ${
                           isSelected ? `${c.bar} border-transparent` : 'border-slate-600'
                         }`}>
@@ -279,17 +310,25 @@ export default function Menu({
         })}
       </div>
 
-      {/* Focused practice start button — sticky at bottom */}
-      {practiceTab === 'focused' && (
+      {/* Focused / relax start button — sticky at bottom */}
+      {selecting && (
         <div className="sticky bottom-0 bg-[#07070f]/95 backdrop-blur-sm px-4 pb-6 pt-3 border-t border-white/5">
           <button
-            onClick={() => onPlayMulti(selected)}
+            onClick={() => (practiceTab === 'relax' ? onPlayRelax(selected) : onPlayMulti(selected))}
             disabled={selected.length === 0}
-            className="w-full bg-fuchsia-600 hover:bg-fuchsia-500 disabled:opacity-30 active:scale-95 text-white font-bold text-lg py-4 rounded-2xl transition-all shadow-lg shadow-fuchsia-900/40"
+            className={`w-full disabled:opacity-30 active:scale-95 text-white font-bold text-lg py-4 rounded-2xl transition-all shadow-lg ${
+              practiceTab === 'relax'
+                ? 'bg-teal-600 hover:bg-teal-500 shadow-teal-900/40'
+                : 'bg-fuchsia-600 hover:bg-fuchsia-500 shadow-fuchsia-900/40'
+            }`}
           >
-            {lang === 'es'
-              ? `Practicar ${selected.length === CATEGORY_ORDER.length ? 'todo' : `${selected.length} categoría${selected.length !== 1 ? 's' : ''}`}`
-              : `Practice ${selected.length === CATEGORY_ORDER.length ? 'all' : `${selected.length} categor${selected.length !== 1 ? 'ies' : 'y'}`}`}
+            {practiceTab === 'relax'
+              ? (lang === 'es'
+                  ? `🧘 Relax con ${selected.length === CATEGORY_ORDER.length ? 'todo' : `${selected.length} categoría${selected.length !== 1 ? 's' : ''}`}`
+                  : `🧘 Relax with ${selected.length === CATEGORY_ORDER.length ? 'all' : `${selected.length} categor${selected.length !== 1 ? 'ies' : 'y'}`}`)
+              : (lang === 'es'
+                  ? `Practicar ${selected.length === CATEGORY_ORDER.length ? 'todo' : `${selected.length} categoría${selected.length !== 1 ? 's' : ''}`}`
+                  : `Practice ${selected.length === CATEGORY_ORDER.length ? 'all' : `${selected.length} categor${selected.length !== 1 ? 'ies' : 'y'}`}`)}
           </button>
           <div className="flex gap-2 mt-2">
             <button

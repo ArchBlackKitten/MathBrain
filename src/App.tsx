@@ -168,6 +168,7 @@ export default function App() {
       settings={settings}
       onPlaySingle={cat => startGame([cat], 'single')}
       onPlayMulti={cats => startGame(cats, 'practice')}
+      onPlayRelax={cats => startGame(cats, 'relax')}
       onStats={() => setScreen('stats')}
       onSettings={() => setScreen('settings')}
       onProfiles={() => setScreen('profiles')}

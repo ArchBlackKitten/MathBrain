@@ -7,16 +7,32 @@ export function recentAccuracy(stats: CategoryStats, n?: number): number {
   return slice.filter(Boolean).length / slice.length;
 }
 
-export function calcTimeLimit(stats: CategoryStats): number {
-  const base = stats.baseTime;
-  const acc  = recentAccuracy(stats);
-  // Faster problems as accuracy improves — but don't compress below a floor
-  if (acc > 0.90) return Math.max(Math.round(base * 0.50), 3);
-  if (acc > 0.80) return Math.max(Math.round(base * 0.70), 4);
-  if (acc > 0.70) return Math.max(Math.round(base * 0.85), 5);
-  if (acc < 0.40) return Math.round(base * 1.40);
-  if (acc < 0.55) return Math.round(base * 1.20);
-  return base;
+// Time multiplier from recent accuracy: mastered → faster, struggling → lenient.
+// The final time limit is computed in generateProblem() from the problem's own
+// length (term weight) × this multiplier.
+export function accMultiplier(stats: CategoryStats): number {
+  const acc = recentAccuracy(stats);
+  if (acc > 0.90) return 0.50;
+  if (acc > 0.80) return 0.70;
+  if (acc > 0.70) return 0.85;
+  if (acc < 0.40) return 1.40;
+  if (acc < 0.55) return 1.20;
+  return 1.0;
+}
+
+// ── Progressive complexity ────────────────────────────────────────────────────
+// Once the user is cruising at a level (high recent accuracy + enough reps), the
+// same level starts producing LONGER, more laborious problems instead of jumping
+// straight to the next level. Fatigue pulls this back down to keep things gentle.
+export function calcComplexity(stats: CategoryStats, fatigue = 0): number {
+  const acc = recentAccuracy(stats);
+  const n   = stats.attemptsAtLevel;
+  let c = 0;
+  if (acc >= 0.75 && n >= 3)  c = 1;
+  if (acc >= 0.85 && n >= 6)  c = 2;
+  if (acc >= 0.90 && n >= 10) c = 3;
+  c -= Math.round(fatigue * 2); // tired user → shorter problems
+  return Math.max(0, Math.min(c, 3));
 }
 
 // ── Sweet-spot weight: mastered categories still appear, just less often ──────
@@ -151,10 +167,11 @@ export function pickCategory(profile: UserProfile, filter?: CategoryId[]): Categ
   return pool[pool.length - 1][0];
 }
 
-export function nextProblem(profile: UserProfile, filter?: CategoryId[]): Problem {
+export function nextProblem(profile: UserProfile, filter?: CategoryId[], fatigue = 0): Problem {
   const cat   = pickCategory(profile, filter);
   const stats = profile.categories[cat];
-  return generateProblem(cat, stats.level, calcTimeLimit(stats));
+  const complexity = calcComplexity(stats, fatigue);
+  return generateProblem(cat, stats.level, complexity, stats.baseTime, accMultiplier(stats));
 }
 
 // ── Apply result ──────────────────────────────────────────────────────────────

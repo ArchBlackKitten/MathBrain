@@ -17,22 +17,128 @@ function mkq(items: QA[]): GenResult {
   return { question: q, answer: a, hint };
 }
 
+// ── Progressive expression builder ────────────────────────────────────────────
+// As the user masters a level, `complexity` (0..3) grows and problems get LONGER
+// and more laborious — extra terms, parentheses, exponents and roots — without
+// jumping in conceptual difficulty. The returned `terms` is a difficulty weight
+// used to scale the time limit (see SEC_PER_TERM below).
+
+export const SEC_PER_TERM = 4; // extra seconds granted per unit of expression weight
+
+type Atom = { str: string; val: number; weight: number };
+type ExprKind = 'add' | 'sub' | 'mul' | 'neg';
+
+function makeAtom(level: ProblemLevel, complexity: number, allowFancy: boolean): Atom {
+  const size = [12, 40, 120, 400][level - 1];
+  const r = Math.random();
+  if (allowFancy && complexity >= 2 && level >= 3 && r < 0.15) {
+    // √ of a perfect square
+    const k = rand(2, [6, 8, 10, 12][level - 1]);
+    return { str: `√${k * k}`, val: k, weight: 2 };
+  }
+  if (allowFancy && complexity >= 2 && level >= 2 && r < 0.32) {
+    // small square / cube
+    const useCube = level >= 4 && Math.random() < 0.35;
+    const k = rand(2, useCube ? 5 : level >= 3 ? 9 : 6);
+    return useCube
+      ? { str: `${k}³`, val: k * k * k, weight: 2 }
+      : { str: `${k}²`, val: k * k, weight: 2 };
+  }
+  if (allowFancy && complexity >= 1 && r < 0.45) {
+    // product
+    const a = rand(2, level >= 3 ? 12 : 9);
+    const b = rand(2, 6);
+    return { str: `${a}×${b}`, val: a * b, weight: 2 };
+  }
+  const v = rand(1, size);
+  return { str: `${v}`, val: v, weight: 1 };
+}
+
+function buildExpression(kind: ExprKind, level: ProblemLevel, complexity: number): GenResult {
+  const nAtoms = 2 + complexity; // 2..5
+  const allowFancy = kind !== 'neg' || complexity >= 1;
+  let parts: Atom[] = Array.from({ length: nAtoms }, () => makeAtom(level, complexity, allowFancy));
+
+  // At high complexity, wrap the first two atoms in a parenthesised group × factor
+  let parenBonus = 0;
+  if (complexity >= 2 && parts.length >= 3 && Math.random() < 0.6) {
+    const g = parts[0].val + parts[1].val;
+    const f = rand(2, 4);
+    const w = parts[0].weight + parts[1].weight + 1;
+    parts.splice(0, 2, { str: `${f}×(${parts[0].str} + ${parts[1].str})`, val: f * g, weight: w });
+    parenBonus = 1;
+  }
+
+  let val = parts[0].val;
+  let q = parts[0].str;
+  for (let i = 1; i < parts.length; i++) {
+    const wantMinus = kind === 'sub'
+      ? Math.random() < 0.7
+      : kind === 'neg'
+        ? Math.random() < 0.5
+        : Math.random() < 0.35;
+    // Non-negative kinds keep the running total ≥ 0
+    if (wantMinus && (kind === 'neg' || val - parts[i].val >= 0)) {
+      val -= parts[i].val; q += ` − ${parts[i].str}`;
+    } else {
+      val += parts[i].val; q += ` + ${parts[i].str}`;
+    }
+  }
+
+  const weight = parts.reduce((s, p) => s + p.weight, 0) + parenBonus;
+  return { question: q, answer: val, terms: Math.min(weight, 8) };
+}
+
+function divisionExpr(level: ProblemLevel, complexity: number): GenResult {
+  const bMax = [5, 10, 12, 20][level - 1];
+  const qMax = [10, 20, 30, 50][level - 1];
+  const b = rand(2, bMax), q = rand(1, qMax);
+  let val = q;
+  let str = `${b * q} ÷ ${b}`;
+  let weight = 2;
+  for (let i = 0; i < complexity; i++) {
+    const k = rand(1, [10, 20, 30, 40][level - 1]);
+    if (Math.random() < 0.5 && val - k >= 0) { val -= k; str += ` − ${k}`; }
+    else { val += k; str += ` + ${k}`; }
+    weight += 1;
+  }
+  return { question: str, answer: val, terms: Math.min(weight, 8) };
+}
+
+function decimalExpr(level: ProblemLevel, complexity: number): GenResult {
+  const nTerms = 2 + complexity;
+  const scale = [10, 10, 100, 100][level - 1];
+  const size = [20, 50, 80, 150][level - 1];
+  let val = 0;
+  const strs: string[] = [];
+  for (let i = 0; i < nTerms; i++) {
+    const d = round2(rand(1, size * scale) / scale);
+    if (i === 0 || Math.random() < 0.5 || val - d < 0) { val = round2(val + d); strs.push(`+ ${d}`); }
+    else { val = round2(val - d); strs.push(`− ${d}`); }
+  }
+  const q = strs.join(' ').replace(/^\+ /, '');
+  return { question: q, answer: val, terms: Math.min(nTerms, 8) };
+}
+
 // ── Basic Arithmetic ──────────────────────────────────────────────────────────
 
-function addition(level: ProblemLevel) {
+function addition(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return buildExpression('add', level, complexity);
   const max = [10, 50, 200, 999][level - 1];
   const a = rand(1, max), b = rand(1, max);
   return { question: `${a} + ${b}`, answer: a + b };
 }
 
-function subtraction(level: ProblemLevel) {
+function subtraction(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return buildExpression('sub', level, complexity);
   const max = [10, 50, 200, 999][level - 1];
   let a = rand(1, max), b = rand(1, max);
   if (b > a) [a, b] = [b, a];
   return { question: `${a} − ${b}`, answer: a - b };
 }
 
-function multiplication(level: ProblemLevel) {
+function multiplication(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return buildExpression('mul', level, complexity);
   if (level === 1) {
     // Level 1: always show emoji grid
     const a = rand(2, 6), b = rand(2, 6);
@@ -56,7 +162,8 @@ function multiplication(level: ProblemLevel) {
   return { question: `${a} × ${b}`, answer: a * b };
 }
 
-function division(level: ProblemLevel) {
+function division(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return divisionExpr(level, complexity);
   const bMax = [5, 10, 12, 20][level - 1];
   const qMax = [10, 20, 30, 50][level - 1];
   const b = rand(2, bMax), q = rand(1, qMax);
@@ -1120,7 +1227,8 @@ function vedic(level: ProblemLevel) {
 
 // ── Negative Numbers ──────────────────────────────────────────────────────────
 
-function negatives(level: ProblemLevel) {
+function negatives(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return buildExpression('neg', level, complexity);
   if (level === 1) {
     // Subtraction to negatives, adding negatives — number line intuition
     const type = pick(['sub_neg','neg_plus','neg_neg'] as const);
@@ -1183,7 +1291,8 @@ function negatives(level: ProblemLevel) {
 
 // ── Decimal Numbers ───────────────────────────────────────────────────────────
 
-function decimals(level: ProblemLevel) {
+function decimals(level: ProblemLevel, complexity = 0) {
+  if (complexity > 0) return decimalExpr(level, complexity);
   if (level === 1) {
     // Suma/resta decimales sencillos, valor posicional
     const type = pick(['add','sub','place'] as const);
@@ -1320,9 +1429,9 @@ function proportionality(level: ProblemLevel) {
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 
-type GenResult = { question: string; answer: number; visual?: ProblemVisual; hint?: string };
+type GenResult = { question: string; answer: number; visual?: ProblemVisual; hint?: string; terms?: number };
 
-const GENERATORS: Record<CategoryId, (l: ProblemLevel) => GenResult> = {
+const GENERATORS: Record<CategoryId, (l: ProblemLevel, complexity?: number) => GenResult> = {
   addition, subtraction, multiplication, division,
   percentage, power, squareRoot, fractions,
   decimals, negatives,
@@ -1332,7 +1441,18 @@ const GENERATORS: Record<CategoryId, (l: ProblemLevel) => GenResult> = {
   statistics, chemistry, physics, computing,
 };
 
-export function generateProblem(category: CategoryId, level: ProblemLevel, timeLimit: number): Problem {
-  const { question, answer, visual, hint } = GENERATORS[category](level);
+// Time is derived from the generated problem itself: a base amount plus SEC_PER_TERM
+// for every unit of expression weight beyond a plain 2-operand problem, then scaled
+// by the accuracy multiplier (mastered → faster, struggling → more lenient).
+export function generateProblem(
+  category: CategoryId,
+  level: ProblemLevel,
+  complexity: number,
+  baseTime: number,
+  accMul: number,
+): Problem {
+  const { question, answer, visual, hint, terms } = GENERATORS[category](level, complexity);
+  const extra = Math.max(0, (terms ?? 2) - 2);
+  const timeLimit = Math.max(3, Math.round((baseTime + SEC_PER_TERM * extra) * accMul));
   return { id: uid(), category, question, answer, level, timeLimit, visual, hint };
 }
