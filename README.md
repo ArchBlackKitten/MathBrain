@@ -137,16 +137,43 @@ Sin practicar ≥ 5 días          →  baja de nivel (penalización)
 
 El objetivo es mantenerte en el **sweet spot**: la zona donde fallas lo justo para que el cerebro trabaje y aprenda de verdad, sin ser ni muy fácil ni frustrante.
 
+### Complejidad progresiva (mismo nivel, más trabajo)
+
+Aparte del nivel (qué tan avanzado es el tema), cada categoría tiene un eje de
+**complejidad** (0 → 3) que crece cuando ya dominas el nivel actual. El mismo nivel
+empieza a generar problemas **más largos y trabajosos** en vez de saltar de golpe al
+siguiente tema: más términos, paréntesis, exponentes (`8²`, `4³`) y raíces (`√49`).
+
+```
+Precisión ≥ 75% con 3+ intentos en el nivel  →  complejidad 1  (+1 término)
+Precisión ≥ 85% con 6+ intentos              →  complejidad 2  (paréntesis, exponentes)
+Precisión ≥ 90% con 10+ intentos             →  complejidad 3  (raíces, expresiones largas)
+```
+
+El **tiempo se calcula del problema real**, no es fijo: `tiempo = base + 4s × términos_extra`,
+y luego se escala por tu precisión (dominado → más rápido, batallando → más holgado).
+Aplica a suma, resta, multiplicación, división, decimales y negativos.
+
+### Detección de fatiga
+
+Si empiezas a fallar categorías que **normalmente dominas**, la app sube un puntaje
+de fatiga (mira tus últimos 5 resultados) y **baja la complejidad** y afloja el tiempo.
+La meta es tenerte enganchada, no quemarte el cerebro.
+
 ---
 
 ## Características
 
 - **27 categorías** organizadas en 6 secciones: Aritmética, Números, Álgebra & Análisis, Teoría & Mental, Uso Cotidiano, Ciencia & Tecnología
 - **Niveles adaptativos** por categoría — cada una avanza o retrocede de forma independiente
-- **Tres modos de práctica:**
+- **Complejidad progresiva** — al dominar un nivel, el mismo nivel se vuelve más largo y trabajoso (paréntesis, exponentes, raíces) con tiempo proporcional al problema
+- **Detección de fatiga** — si fallas categorías que normalmente dominas, baja la complejidad y afloja el tiempo
+- **Cuatro modos de práctica:**
   - 🎲 **Práctica Libre** — la app elige categorías y niveles; muestra panel de recomendaciones con las categorías más urgentes (⏰ olvidada, 💪 batallando, ✨ nueva)
   - 🎯 **A Consciencia** — tú seleccionas qué categorías practicar (individualmente o por sección); el algoritmo adapta el nivel dentro de tu selección
+  - 🧘 **Relax** — sin cronómetro, sin puntaje, con botón Saltar y sesión infinita; no toca tus stats (práctica pura)
   - 📚 **Individual** — click directo en una categoría con selector de nivel manual
+- **Tablero personal** 📝 — bloc de apoyo dentro del juego con dos modos: **cuadrícula** (celdas para alinear columnas y hacer el cálculo a mano) y **notas libres**. Se limpia al pasar de problema y no cuenta como respuesta
 - **Sistema de recomendaciones inteligentes** — puntúa cada categoría por abandono, dificultad y novedad para sugerirte qué practicar primero
 - **Penalización por abandono** — no practicar durante 5 días baja el nivel automáticamente; en modo práctica no puedes corregirlo manualmente
 - **Prompt de distracción** — si el tiempo expira sin respuesta, presiona `A` (sí, estaba distraído — no cuenta) o `N` (cuenta como error)

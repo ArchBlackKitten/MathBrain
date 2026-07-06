@@ -100,14 +100,35 @@ acc > 82%  → weight 0.80×
 in range   → weight 1.0×  (normal)
 ```
 
-### Adaptive time limit
+### Progressive complexity (`calcComplexity`)
+A separate axis from level (0 → 3). Once the user has mastered the current level, the
+same level starts generating longer problems: more terms, parentheses, exponents (`8²`,
+`4³`) and roots (`√49`).
 ```
-acc > 90%  → 50% of base time (more challenging)
-acc > 80%  → 70% of base time
-acc > 70%  → 85% of base time
-acc < 40%  → 140% of base time (more lenient)
-acc < 55%  → 120% of base time
+acc ≥ 75% with 3+ attempts at the level   → complexity 1  (+1 term)
+acc ≥ 85% with 6+ attempts                → complexity 2  (parentheses, exponents)
+acc ≥ 90% with 10+ attempts               → complexity 3  (roots, long expressions)
 ```
+Implemented in `buildExpression` (problems.ts) for addition, subtraction,
+multiplication, division, decimals and negatives. The answer is correct by construction.
+
+### Adaptive time limit (proportional to the problem)
+Time is no longer fixed — it is derived from the actual problem. `accMultiplier` gives
+the accuracy factor, and `generateProblem` computes:
+`time = max(3, round((base + 4s × extra_terms) × accMultiplier))`
+```
+acc > 90%  → ×0.50 (more challenging)
+acc > 80%  → ×0.70
+acc > 70%  → ×0.85
+acc < 40%  → ×1.40 (more lenient)
+acc < 55%  → ×1.20
+```
+
+### Fatigue detection (session-scoped, in Game.tsx)
+A rolling log of the last 5 results with `ease` = the category's lifetime mastery. If
+the user starts failing categories they normally master, `fatigue` (0–1) rises and
+`calcComplexity` uses it to **lower complexity** (`c -= round(fatigue × 2)`), easing the
+pace. Not persisted — it is ephemeral session state.
 
 ### Neglect penalty
 If a category hasn't been practised in ≥5 days and is at level >1: drops one level automatically on app load. In practice mode, the user cannot manually override this level.
@@ -138,6 +159,13 @@ Top 5–6 categories are shown as recommendations in Free Practice.
 - Algorithm still adapts the level within the chosen categories
 - Sticky bottom button with selected category count
 
+### Relax (🧘)
+- No timer, no scoring pressure, endless session
+- **Skip** button to pass any problem
+- **Does not mutate stats or level** (pure practice) — never calls `applyResult`
+- Categories are chosen the same way as in Focused
+- `GameMode = 'practice' | 'single' | 'relax'`
+
 ### Single Category
 - Direct click on a category from the menu
 - User can change the level manually (selector visible)
@@ -147,8 +175,11 @@ Top 5–6 categories are shown as recommendations in Free Practice.
 
 ## User Mechanics
 
+- **Personal scratchpad** (📝) inside the game: two modes — **grid** (5×9 cells to align
+  columns and work by hand) and **free notes**. Clears on the next problem and is never
+  your answer
 - **Daily streak** Duolingo-style with personal best (🔥)
-- **XP**: +10 per correct answer, +2 per incorrect
+- **XP**: +10 per correct answer, +2 per incorrect (Relax mode adds no profile XP)
 - **90-day activity history** with XP/day
 - **Bar chart** of last 30 days + projected XP over next 30 days
 - **Distraction prompt**: if time expires with no answer, asks "Were you distracted?" — key A (yes, doesn't count) / N (no, counts as wrong)

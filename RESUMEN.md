@@ -100,14 +100,34 @@ acc > 82%  → peso 0.80×
 en rango   → peso 1.0×  (normal)
 ```
 
-### Tiempo límite adaptativo
+### Complejidad progresiva (`calcComplexity`)
+Eje separado del nivel (0 → 3). Cuando ya dominas el nivel actual, el mismo nivel
+genera problemas más largos: más términos, paréntesis, exponentes (`8²`, `4³`) y raíces (`√49`).
 ```
-acc > 90%  → 50% del tiempo base (más desafiante)
-acc > 80%  → 70% del tiempo base
-acc > 70%  → 85% del tiempo base
-acc < 40%  → 140% del tiempo base (más holgado)
-acc < 55%  → 120% del tiempo base
+acc ≥ 75% con 3+ intentos en el nivel   → complejidad 1  (+1 término)
+acc ≥ 85% con 6+ intentos               → complejidad 2  (paréntesis, exponentes)
+acc ≥ 90% con 10+ intentos              → complejidad 3  (raíces, expresiones largas)
 ```
+Implementado en `buildExpression` (problems.ts) para suma, resta, multiplicación,
+división, decimales y negativos. La respuesta es correcta por construcción.
+
+### Tiempo límite adaptativo (proporcional al problema)
+El tiempo ya no es fijo: se deriva del problema real. `accMultiplier` da el factor
+por precisión, y `generateProblem` calcula:
+`tiempo = max(3, round((base + 4s × términos_extra) × accMultiplier))`
+```
+acc > 90%  → ×0.50 (más desafiante)
+acc > 80%  → ×0.70
+acc > 70%  → ×0.85
+acc < 40%  → ×1.40 (más holgado)
+acc < 55%  → ×1.20
+```
+
+### Detección de fatiga (por sesión, en Game.tsx)
+Registro de los últimos 5 resultados con `ease` = maestría histórica de la categoría.
+Si el usuario falla categorías que normalmente domina, sube `fatigue` (0–1), que
+`calcComplexity` usa para **bajar la complejidad** (`c -= round(fatigue × 2)`) y así
+aflojar el ritmo. No se persiste — es estado efímero de la sesión.
 
 ### Penalización por abandono
 Si no practicas una categoría en ≥5 días y está en nivel >1: baja un nivel automáticamente al abrir la app. En modo práctica, este nivel no se puede cambiar manualmente.
@@ -138,6 +158,13 @@ Las top 5–6 se muestran como recomendaciones en Práctica Libre.
 - El algoritmo sigue adaptando el nivel dentro de las categorías elegidas
 - Botón sticky con conteo de categorías seleccionadas
 
+### Relax (🧘)
+- Sin cronómetro, sin presión de puntaje, sesión infinita
+- Botón **Saltar** para pasar cualquier problema
+- **No muta stats ni nivel** (práctica pura) — no llama a `applyResult`
+- Se eligen categorías igual que en "A Consciencia"
+- `GameMode = 'practice' | 'single' | 'relax'`
+
 ### Categoría Individual
 - Click directo en una categoría desde el menú
 - El usuario puede cambiar el nivel manualmente (selector visible)
@@ -147,8 +174,11 @@ Las top 5–6 se muestran como recomendaciones en Práctica Libre.
 
 ## Mecánicas de usuario
 
+- **Tablero personal** (📝) dentro del juego: dos modos — **cuadrícula** (5×9 celdas para
+  alinear columnas y calcular a mano) y **notas libres**. Se limpia al pasar de problema
+  y no cuenta como respuesta
 - **Racha diaria** estilo Duolingo con récord personal (🔥)
-- **XP**: +10 por respuesta correcta, +2 por incorrecta
+- **XP**: +10 por respuesta correcta, +2 por incorrecta (en Relax no suma XP al perfil)
 - **Historial** de 90 días de actividad con XP/día
 - **Gráfica de barras** de los últimos 30 días + proyección de XP a 30 días
 - **Prompt de distracción**: si el tiempo expira sin ninguna respuesta, pregunta "¿Estabas distraído?" — tecla A (sí, no cuenta) / N (no, cuenta como error)

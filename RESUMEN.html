@@ -320,7 +320,7 @@ h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; 
 :root[data-theme="alucard"] .fc4 { color: #2d7a2d; }
 
 /* ─── MODES ─────────────────────────────────────────────────────── */
-.modes-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
+.modes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr)); gap: 9px; }
 @media (max-width: 520px) { .modes-grid { grid-template-columns: 1fr; } }
 .mode-card { border-radius: 12px; padding: 15px; border: 1px solid; }
 .mode-card .micon { font-size: 20px; margin-bottom: 7px; }
@@ -532,8 +532,8 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
   <div class="glance-item">
     <div class="glance-label"><span class="es">Modos</span><span class="en">Modes</span></div>
-    <div class="glance-value">3</div>
-    <div class="glance-sub"><span class="es">Libre · Consciencia · Individual</span><span class="en">Free · Focused · Single</span></div>
+    <div class="glance-value">4</div>
+    <div class="glance-sub"><span class="es">Libre · Consciencia · Relax · Individual</span><span class="en">Free · Focused · Relax · Single</span></div>
   </div>
   <div class="glance-item">
     <div class="glance-label"><span class="es">Perfiles</span><span class="en">Profiles</span></div>
@@ -667,6 +667,22 @@ window.addEventListener('DOMContentLoaded', () => {
         + <span class="fc3">new</span>      × <span class="fc4">0.20</span>  <span class="fcm es">— nunca practicada</span><span class="fcm en">— never practised</span>
         + <span class="fc3">sweetspot</span>× <span class="fc4">0.05</span>  <span class="fcm es">— actualmente en zona óptima</span><span class="fcm en">— currently in optimal zone</span></div>
 
+<div class="algo-grid" style="margin-top:10px">
+  <div class="algo-block">
+    <h4><span class="es">Complejidad progresiva</span><span class="en">Progressive complexity</span></h4>
+    <div class="thresh-row"><span class="thresh-lbl">≥75% · 3+</span><div class="thresh-bar"><div class="thresh-fill" style="width:75%;background:#50fa7b"></div></div><span class="thresh-tag">c1</span></div>
+    <div class="thresh-row"><span class="thresh-lbl">≥85% · 6+</span><div class="thresh-bar"><div class="thresh-fill" style="width:85%;background:#8be9fd"></div></div><span class="thresh-tag">c2</span></div>
+    <div class="thresh-row"><span class="thresh-lbl">≥90% · 10+</span><div class="thresh-bar"><div class="thresh-fill" style="width:90%;background:#bd93f9"></div></div><span class="thresh-tag">c3</span></div>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:8px" class="es">Mismo nivel, pero más largo: +términos, ( ), 8², √49. Tiempo = base + 4s × términos extra, × precisión.</p>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:8px" class="en">Same level, longer: +terms, ( ), 8², √49. Time = base + 4s × extra terms, × accuracy.</p>
+  </div>
+  <div class="algo-block">
+    <h4><span class="es">Detección de fatiga</span><span class="en">Fatigue detection</span></h4>
+    <p style="font-size:12px;color:var(--muted)" class="es">Mira tus últimos 5 resultados. Si fallas categorías que <strong>normalmente dominas</strong>, sube la fatiga, que <strong>baja la complejidad</strong> y afloja el tiempo. Efímero: no se guarda.</p>
+    <p style="font-size:12px;color:var(--muted)" class="en">Looks at your last 5 results. If you fail categories you <strong>normally master</strong>, fatigue rises, which <strong>lowers complexity</strong> and eases time. Ephemeral: not saved.</p>
+  </div>
+</div>
+
 <hr>
 
 <!-- ─── PRACTICE MODES ────────────────────────────────────────────── -->
@@ -684,6 +700,12 @@ window.addEventListener('DOMContentLoaded', () => {
     <p class="es">Seleccionas categorías o secciones enteras. El algoritmo adapta el nivel dentro de tu selección.</p>
     <p class="en">You pick categories or whole sections. The algorithm still adapts the level within your selection.</p>
   </div>
+  <div class="mode-card" style="background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.22)">
+    <div class="micon">🧘</div>
+    <h3><span class="es">Relax</span><span class="en">Relax</span></h3>
+    <p class="es">Sin cronómetro ni puntaje. Botón Saltar, sesión infinita. No toca tus stats (práctica pura).</p>
+    <p class="en">No timer, no score. Skip button, endless session. Doesn't touch your stats (pure practice).</p>
+  </div>
   <div class="mode-card mc-slt">
     <div class="micon">📚</div>
     <h3><span class="es">Individual</span><span class="en">Single Category</span></h3>
@@ -697,6 +719,11 @@ window.addEventListener('DOMContentLoaded', () => {
 <!-- ─── USER MECHANICS ─────────────────────────────────────────────── -->
 <h2><span class="es">Mecánicas de Usuario</span><span class="en">User Mechanics</span></h2>
 <div class="mech-grid">
+  <div class="mech-card">
+    <h3>📝 <span class="es">Tablero personal</span><span class="en">Scratchpad</span></h3>
+    <p class="es">Cuadrícula (celdas para alinear columnas) + notas libres. Se limpia por problema, no es tu respuesta.</p>
+    <p class="en">Grid (cells to align columns) + free notes. Clears per problem, never your answer.</p>
+  </div>
   <div class="mech-card">
     <h3>🔥 <span class="es">Racha diaria</span><span class="en">Daily streak</span></h3>
     <p class="es">Días consecutivos practicando. Récord personal guardado en perfil.</p>
