@@ -337,7 +337,7 @@ export default function Game({ profile, activeCategories, mode, settings, onUpda
               type="text"
               inputMode="decimal"
               value={answer}
-              onChange={e => setAnswer(e.target.value.replace(/[^0-9.,\-]/g, ''))}
+              onChange={e => setAnswer(e.target.value.replace(/[^0-9.,-]/g, ''))}
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
               placeholder="?"
               className="flex-1 bg-white/5 border border-white/15 rounded-2xl px-5 py-4 text-white text-2xl font-mono outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition text-center"
